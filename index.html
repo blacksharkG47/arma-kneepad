@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>US Aviator Digital Kneepad - Arma Reforger</title>
+    <title>US Aviator Tactical Kneepad v2.0 - Arma Reforger</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -13,9 +13,10 @@
                 extend: {
                     colors: {
                         nvg: '#00ff66',
-                        cockpit: '#12181b',
-                        panel: '#1b2327',
-                        accent: '#22c55e'
+                        cockpit: '#0b0f12',
+                        panel: '#141c21',
+                        accent: '#22c55e',
+                        cyber: '#06b6d4'
                     }
                 }
             }
@@ -25,22 +26,35 @@
         input, select, button { touch-action: manipulation; }
         body { -webkit-user-select: none; user-select: none; }
         input, textarea { -webkit-user-select: text; user-select: text; }
+        .num-btn { @apply bg-gray-800 hover:bg-gray-700 active:bg-cyan-600 text-cyan-300 font-bold p-3 rounded border border-gray-600 text-base flex justify-center items-center transition shadow; }
+        .active-field { @apply border-cyan-400 ring-2 ring-cyan-500/50 bg-gray-900 !important; }
     </style>
 </head>
-<body class="bg-cockpit text-gray-200 font-mono min-h-screen p-2 md:p-4">
+<body class="bg-cockpit text-gray-200 font-mono min-h-screen p-2 md:p-4 select-none">
 
-    <!-- Header / Mode Bar -->
-    <header class="flex justify-between items-center bg-panel p-3 rounded-lg border border-gray-700 mb-3">
+    <!-- Header & Mode Selector -->
+    <header class="flex justify-between items-center bg-panel p-3 rounded-lg border border-cyan-900/50 mb-3 shadow-lg">
         <div>
-            <h1 class="text-xl font-bold text-accent tracking-wider">🚁 AVIATOR KNEEPAD</h1>
+            <h1 class="text-xl font-bold text-accent tracking-wider flex items-center gap-2">
+                <span class="inline-block w-3 h-3 bg-accent rounded-full animate-ping"></span>
+                TACTICAL KNEEPAD <span class="text-xs bg-cyan-900/80 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500">v2.0 SMART</span>
+            </h1>
             <p class="text-xs text-gray-400">US ARMY / USMC ROTARY WING OPS</p>
         </div>
-        <div>
+        <div class="flex gap-2">
+            <button onclick="toggleVoice()" id="btn-voice" class="bg-purple-900/60 hover:bg-purple-700 text-purple-200 px-3 py-1.5 rounded text-xs border border-purple-500 font-bold active:scale-95 transition flex items-center gap-1">
+                🎤 VOICE INPUT
+            </button>
             <button onclick="clearAllForms()" class="bg-red-900/50 hover:bg-red-700 text-red-200 px-3 py-1.5 rounded text-xs border border-red-500 font-bold active:scale-95 transition">
-                CLEAR ALL [ALT+C]
+                CLEAR ALL
             </button>
         </div>
     </header>
+
+    <!-- Voice Input Status Banner (Hidden by default) -->
+    <div id="voice-status" class="hidden mb-3 bg-purple-950/80 border border-purple-500 p-2 rounded text-center text-xs text-purple-300 animate-pulse">
+        🎙️ Listening for radio commands... (e.g. "SABER 6 THIS IS VORTEX 1 1 2 UH 60M GRID 0 1 2 3 4 5")
+    </div>
 
     <!-- Navigation Tabs -->
     <nav class="grid grid-cols-4 gap-2 mb-3">
@@ -58,279 +72,325 @@
         </button>
     </nav>
 
-    <!-- TAB 0: AIRCRAFT CHECK-IN (MNPOPR FORMAT) -->
-    <section id="sec-checkin" class="space-y-3">
-        <div class="bg-panel p-4 rounded-lg border border-gray-700">
-            <h2 class="text-md font-bold text-accent mb-3 border-b border-gray-700 pb-1">AIRCRAFT CHECK-IN BRIEF (MNPOPR)</h2>
+    <!-- Main Layout: Grid 2 Columns for iPad -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        
+        <!-- Left Side: Interactive Forms (2 Columns on Large Screens) -->
+        <div class="lg:col-span-2 space-y-3">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                <!-- Callsigns: JTAC & Pilot Separate -->
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">JTAC Call Sign (Receiving Control)</label>
-                    <input type="text" id="chk-jtac" placeholder="e.g. SABER 6" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">My Call Sign (Flight Lead)</label>
-                    <input type="text" id="chk-pilot" placeholder="e.g. VORTEX 1-1" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none">
-                </div>
+            <!-- TAB 0: CHECK-IN -->
+            <section id="sec-checkin" class="bg-panel p-4 rounded-lg border border-gray-700">
+                <h2 class="text-md font-bold text-accent mb-3 border-b border-gray-700 pb-1">AIRCRAFT CHECK-IN BRIEF (MNPOPR)</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">JTAC Call Sign</label>
+                        <input type="text" id="chk-jtac" onfocus="setActiveInput(this)" placeholder="e.g. SABER 6" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">My Call Sign</label>
+                        <input type="text" id="chk-pilot" onfocus="setActiveInput(this)" placeholder="e.g. VORTEX 1-1" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none">
+                    </div>
 
-                <!-- Aircraft Type Presets -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-gray-400 mb-1">M/N: Mission & Aircraft / Flight Size</label>
-                    <input type="text" id="chk-aircraft" placeholder="e.g. 2x UH-60M" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none mb-1.5">
-                    
-                    <div class="flex flex-wrap gap-1 text-xs">
-                        <span class="text-gray-500 py-0.5">Quick Aircraft:</span>
-                        <button onclick="setFieldValue('chk-aircraft', '1x UH-60M')" class="bg-gray-800 hover:bg-gray-700 text-accent px-2 py-0.5 rounded border border-gray-600">1x UH-60M</button>
-                        <button onclick="setFieldValue('chk-aircraft', '2x UH-60M')" class="bg-gray-800 hover:bg-gray-700 text-accent px-2 py-0.5 rounded border border-gray-600">2x UH-60M</button>
-                        <button onclick="setFieldValue('chk-aircraft', '1x MH-60S')" class="bg-gray-800 hover:bg-gray-700 text-accent px-2 py-0.5 rounded border border-gray-600">1x MH-60S</button>
-                        <button onclick="setFieldValue('chk-aircraft', '1x AH-64D')" class="bg-gray-800 hover:bg-gray-700 text-accent px-2 py-0.5 rounded border border-gray-600">1x AH-64D</button>
-                        <button onclick="setFieldValue('chk-aircraft', '1x CH-47F')" class="bg-gray-800 hover:bg-gray-700 text-accent px-2 py-0.5 rounded border border-gray-600">1x CH-47F</button>
-                        <button onclick="setFieldValue('chk-aircraft', '1x AH-1Z')" class="bg-gray-800 hover:bg-gray-700 text-accent px-2 py-0.5 rounded border border-gray-600">1x AH-1Z</button>
-                        <button onclick="setFieldValue('chk-aircraft', '1x UH-1H')" class="bg-gray-800 hover:bg-gray-700 text-accent px-2 py-0.5 rounded border border-gray-600">1x UH-1H</button>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs text-gray-400 mb-1">M/N: Mission & Aircraft</label>
+                        <input type="text" id="chk-aircraft" onfocus="setActiveInput(this)" placeholder="e.g. 2x UH-60M" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none mb-1.5">
+                        <div class="flex flex-wrap gap-1 text-xs">
+                            <button onclick="setFieldValue('chk-aircraft', '1x UH-60M')" class="bg-gray-800 text-accent px-2 py-0.5 rounded border border-gray-600">1x UH-60M</button>
+                            <button onclick="setFieldValue('chk-aircraft', '2x UH-60M')" class="bg-gray-800 text-accent px-2 py-0.5 rounded border border-gray-600">2x UH-60M</button>
+                            <button onclick="setFieldValue('chk-aircraft', '1x AH-64D')" class="bg-gray-800 text-accent px-2 py-0.5 rounded border border-gray-600">1x AH-64D</button>
+                            <button onclick="setFieldValue('chk-aircraft', '1x CH-47F')" class="bg-gray-800 text-accent px-2 py-0.5 rounded border border-gray-600">1x CH-47F</button>
+                            <button onclick="setFieldValue('chk-aircraft', '1x AH-1Z')" class="bg-gray-800 text-accent px-2 py-0.5 rounded border border-gray-600">1x AH-1Z</button>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-xs text-cyan-400 mb-1">P: Position & Altitude (Use Tactical Numpad)</label>
+                        <input type="text" id="chk-pos" onfocus="setActiveInput(this)" placeholder="e.g. GRID 012-345, 1500 FT" class="w-full bg-gray-900 border border-cyan-800 p-2 rounded text-white focus:border-cyan-400 outline-none mb-1.5">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">P: Playtime (Min)</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="chk-playtime" onfocus="setActiveInput(this)" placeholder="45" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
+                            <button onclick="startTimer()" class="bg-cyan-900/80 hover:bg-cyan-700 text-cyan-200 px-3 py-1 rounded text-xs border border-cyan-500 font-bold">TIMER</button>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-xs text-gray-400 mb-1">O: Ordnance</label>
+                        <input type="text" id="chk-ord" onfocus="setActiveInput(this)" placeholder="e.g. 2x M134, HYDRA 70" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none mb-1.5">
+                        <div class="flex flex-wrap gap-1 text-xs">
+                            <button onclick="appendValue('chk-ord', '2x M134 MINIGUNS')" class="bg-gray-800 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">M134</button>
+                            <button onclick="appendValue('chk-ord', '2x M240D')" class="bg-gray-800 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">M240D</button>
+                            <button onclick="appendValue('chk-ord', 'HYDRA 70 ROCKETS')" class="bg-gray-800 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">Hydra 70</button>
+                            <button onclick="appendValue('chk-ord', 'AGM-114 HELLFIRE')" class="bg-gray-800 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">Hellfire</button>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Position & Altitude -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-gray-400 mb-1">P: Position & Altitude</label>
-                    <input type="text" id="chk-pos" placeholder="e.g. GRID 012-345, 1500 FT" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none mb-1.5">
-                    
-                    <div class="flex flex-wrap gap-1 text-xs">
-                        <span class="text-gray-500 py-0.5">Grid Preset:</span>
-                        <button onclick="setFieldValue('chk-pos', 'GRID ___ - ___')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 px-2 py-0.5 rounded border border-gray-600">6-DIGIT</button>
-                        <button onclick="setFieldValue('chk-pos', 'GRID ____ - ____')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 px-2 py-0.5 rounded border border-gray-600">8-DIGIT</button>
-                        <button onclick="setFieldValue('chk-pos', 'GRID ___ - ___ (KP _)')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 px-2 py-0.5 rounded border border-gray-600">6-DIGIT + NUMPAD</button>
+                <button onclick="genCheckinScript()" class="w-full mt-4 bg-accent hover:bg-green-600 text-black font-bold py-2.5 rounded shadow transition active:scale-98">
+                    GENERATE CHECK-IN SCRIPT
+                </button>
+            </section>
+
+            <!-- TAB 1: CAS -->
+            <section id="sec-cas" class="bg-panel p-4 rounded-lg border border-gray-700 hidden">
+                <h2 class="text-md font-bold text-accent mb-3 border-b border-gray-700 pb-1">5-LINE ROTARY CAS REQUEST</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div>
+                        <label class="block text-xs text-gray-400">Line 1: Observer Call Sign</label>
+                        <input type="text" id="cas-l1" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Line 2: Friendly Loc & Mark</label>
+                        <input type="text" id="cas-l2" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none mb-1">
+                        <div class="flex gap-1 text-xs">
+                            <button onclick="appendValue('cas-l2', 'RED SMOKE')" class="bg-gray-800 text-red-400 px-1.5 py-0.5 rounded border border-gray-700">Red Smoke</button>
+                            <button onclick="appendValue('cas-l2', 'IR STROBE')" class="bg-gray-800 text-purple-400 px-1.5 py-0.5 rounded border border-gray-700">IR Strobe</button>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-yellow-400 mb-1">Line 3: Target Location (Mandatory Readback)</label>
+                        <input type="text" id="cas-l3" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-yellow-600/50 p-2 rounded text-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Line 4: Target Description</label>
+                        <input type="text" id="cas-l4" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-yellow-400">Line 5: Remarks / Restrictions</label>
+                        <input type="text" id="cas-l5" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-yellow-600/50 p-2 rounded text-white outline-none">
                     </div>
                 </div>
+                <button onclick="genCASReadback()" class="w-full mt-4 bg-accent hover:bg-green-600 text-black font-bold py-2.5 rounded shadow transition active:scale-98">
+                    GENERATE CAS READBACK
+                </button>
+            </section>
 
-                <!-- Playtime Numeric Focus -->
-                <div>
-                    <label class="block text-xs text-gray-400">P: Playtime (Minutes)</label>
-                    <input type="text" inputmode="numeric" pattern="[0-9]*" id="chk-playtime" placeholder="e.g. 45" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none">
-                </div>
-
-                <!-- Ordnance Presets -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-gray-400 mb-1">O: Ordnance / Armament</label>
-                    <input type="text" id="chk-ord" placeholder="e.g. 2x M134 MINIGUNS, 2.75 HYDRA ROCKETS" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none mb-1.5">
-                    
-                    <div class="flex flex-wrap gap-1 text-xs">
-                        <span class="text-gray-500 py-0.5">Quick Weapons:</span>
-                        <button onclick="appendValue('chk-ord', '2x M134 MINIGUNS')" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">2x M134 Minigun</button>
-                        <button onclick="appendValue('chk-ord', '2x M240D')" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">2x M240D</button>
-                        <button onclick="appendValue('chk-ord', '2.75 INCH ROCKETS')" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">Hydra 70 Rockets</button>
-                        <button onclick="appendValue('chk-ord', 'AGM-114 HELLFIRE')" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">Hellfire</button>
-                        <button onclick="appendValue('chk-ord', '30MM CANNON')" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">30mm Cannon</button>
-                        <button onclick="appendValue('chk-ord', 'UNARMED')" class="bg-gray-800 hover:bg-gray-700 text-yellow-400 px-2 py-0.5 rounded border border-gray-600">Unarmed</button>
+            <!-- TAB 2: MEDEVAC -->
+            <section id="sec-medevac" class="bg-panel p-4 rounded-lg border border-gray-700 hidden">
+                <h2 class="text-md font-bold text-red-400 mb-3 border-b border-gray-700 pb-1">9-LINE MEDEVAC REQUEST</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-yellow-400 mb-1">Line 1: Pickup Location Grid</label>
+                        <input type="text" id="med-l1" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-yellow-600/50 p-2 rounded text-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Line 2: Freq / Call Sign</label>
+                        <input type="text" id="med-l2" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400">Line 3: Precedence</label>
+                        <select id="med-l3" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
+                            <option value="A - Urgent">A - Urgent</option>
+                            <option value="B - Priority">B - Priority</option>
+                            <option value="C - Routine">C - Routine</option>
+                        </select>
                     </div>
                 </div>
+                <button onclick="genMEDEVACReadback()" class="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-bold py-2.5 rounded shadow transition active:scale-98">
+                    GENERATE MEDEVAC READBACK
+                </button>
+            </section>
 
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-gray-400 mb-1">R: Capabilities / Remarks</label>
-                    <input type="text" id="chk-remarks" placeholder="e.g. NVG CAPABLE, IR LASER" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none mb-1.5">
-                    
-                    <div class="flex flex-wrap gap-1 text-xs">
-                        <span class="text-gray-500 py-0.5">Capabilities:</span>
-                        <button onclick="appendValue('chk-remarks', 'NVG')" class="bg-gray-800 hover:bg-gray-700 text-green-400 px-2 py-0.5 rounded border border-gray-600">NVG</button>
-                        <button onclick="appendValue('chk-remarks', 'IR LASER')" class="bg-gray-800 hover:bg-gray-700 text-green-400 px-2 py-0.5 rounded border border-gray-600">IR Laser</button>
-                        <button onclick="appendValue('chk-remarks', 'FLIR')" class="bg-gray-800 hover:bg-gray-700 text-green-400 px-2 py-0.5 rounded border border-gray-600">FLIR</button>
-                        <button onclick="appendValue('chk-remarks', 'HOIST')" class="bg-gray-800 hover:bg-gray-700 text-green-400 px-2 py-0.5 rounded border border-gray-600">Rescue Hoist</button>
-                    </div>
+            <!-- TAB 3: REFS -->
+            <section id="sec-ref" class="bg-panel p-4 rounded-lg border border-gray-700 hidden text-xs space-y-2">
+                <h2 class="text-md font-bold text-accent border-b border-gray-700 pb-1">LZ STATUS CODES</h2>
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="p-2 bg-green-900/40 border border-green-600 rounded"><b>GREEN/COLD:</b> Clear</div>
+                    <div class="p-2 bg-red-900/40 border border-red-600 rounded"><b>RED/HOT:</b> Active Fire</div>
                 </div>
-            </div>
-
-            <button onclick="genCheckinScript()" class="w-full mt-4 bg-accent hover:bg-green-600 text-black font-bold py-2 rounded shadow transition active:scale-98">
-                GENERATE CHECK-IN SCRIPT [ENTER]
-            </button>
+            </section>
         </div>
-    </section>
 
-    <!-- TAB 1: 5-LINE CAS -->
-    <section id="sec-cas" class="space-y-3 hidden">
-        <div class="bg-panel p-4 rounded-lg border border-gray-700">
-            <h2 class="text-md font-bold text-accent mb-3 border-b border-gray-700 pb-1">5-LINE ROTARY CAS REQUEST</h2>
+        <!-- Right Side: Tactical Numpad & Radio Output Panel (Optimized for iPad) -->
+        <div class="space-y-3">
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                <div>
-                    <label class="block text-xs text-gray-400">Line 1: Observer Call Sign & WARNORD</label>
-                    <input type="text" id="cas-l1" placeholder="e.g. SABER 6, THIS IS VORTEX 1-1, 5-LINE" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Line 2: Friendly Loc & Mark</label>
-                    <input type="text" id="cas-l2" placeholder="e.g. GRID 042-185, RED SMOKE" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none mb-1">
-                    <div class="flex flex-wrap gap-1 text-xs">
-                        <button onclick="appendValue('cas-l2', 'RED SMOKE')" class="bg-gray-800 hover:bg-gray-700 text-red-400 px-1.5 py-0.5 rounded border border-gray-700">Red Smoke</button>
-                        <button onclick="appendValue('cas-l2', 'GREEN SMOKE')" class="bg-gray-800 hover:bg-gray-700 text-green-400 px-1.5 py-0.5 rounded border border-gray-700">Green Smoke</button>
-                        <button onclick="appendValue('cas-l2', 'IR STROBE')" class="bg-gray-800 hover:bg-gray-700 text-purple-400 px-1.5 py-0.5 rounded border border-gray-700">IR Strobe</button>
-                    </div>
+            <!-- TACTICAL NUMPAD PANEL -->
+            <div class="bg-panel p-3 rounded-lg border border-cyan-800/80 shadow-lg">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
+                        <span class="w-2 h-2 bg-cyan-400 rounded-full"></span> TACTICAL NUMPAD
+                    </span>
+                    <span id="active-field-name" class="text-[10px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-700">TARGET: NONE</span>
                 </div>
 
-                <!-- Line 3 Target Grid with Numeric Mode & Presets -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-yellow-400 mb-1">Line 3: Target Location (Mandatory Readback)</label>
-                    <input type="text" inputmode="numeric" id="cas-l3" placeholder="e.g. GRID 045-189" class="w-full bg-gray-900 border border-yellow-600/50 p-2 rounded text-white focus:border-accent outline-none mb-1.5">
-                    
-                    <div class="flex flex-wrap gap-1 text-xs">
-                        <span class="text-gray-500 py-0.5">Format:</span>
-                        <button onclick="setFieldValue('cas-l3', 'GRID ___ - ___')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 px-2 py-0.5 rounded border border-gray-600">6-DIGIT</button>
-                        <button onclick="setFieldValue('cas-l3', 'GRID ____ - ____')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 px-2 py-0.5 rounded border border-gray-600">8-DIGIT</button>
-                        <button onclick="setFieldValue('cas-l3', 'GRID ___ - ___ (KP _)')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 px-2 py-0.5 rounded border border-gray-600">6-DIGIT + NUMPAD</button>
-                    </div>
+                <!-- Numpad Grid -->
+                <div class="grid grid-cols-3 gap-1.5 mb-2">
+                    <button onclick="pressNum('7')" class="num-btn">7</button>
+                    <button onclick="pressNum('8')" class="num-btn">8</button>
+                    <button onclick="pressNum('9')" class="num-btn">9</button>
+                    <button onclick="pressNum('4')" class="num-btn">4</button>
+                    <button onclick="pressNum('5')" class="num-btn">5</button>
+                    <button onclick="pressNum('6')" class="num-btn">6</button>
+                    <button onclick="pressNum('1')" class="num-btn">1</button>
+                    <button onclick="pressNum('2')" class="num-btn">2</button>
+                    <button onclick="pressNum('3')" class="num-btn">3</button>
+                    <button onclick="pressNum('0')" class="num-btn col-span-2">0</button>
+                    <button onclick="pressBackspace()" class="num-btn bg-red-950/60 hover:bg-red-800 text-red-300 border-red-700">⌫</button>
                 </div>
 
-                <div>
-                    <label class="block text-xs text-gray-400 mb-1">Line 4: Target Description & Mark</label>
-                    <input type="text" id="cas-l4" placeholder="e.g. 2x BTR-70 IN OPEN, IR LASER" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white focus:border-accent outline-none mb-1">
-                    <div class="flex flex-wrap gap-1 text-xs">
-                        <button onclick="appendValue('cas-l4', 'INFANTRY IN OPEN')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">Infantry</button>
-                        <button onclick="appendValue('cas-l4', 'LIGHT VEHICLE')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">Vehicle</button>
-                        <button onclick="appendValue('cas-l4', 'BTR / APC')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">APC</button>
-                        <button onclick="appendValue('cas-l4', 'STATIC MG NEST')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">MG Nest</button>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-yellow-400 mb-1">Line 5: Remarks / Restrictions (Mandatory Readback)</label>
-                    <input type="text" id="cas-l5" placeholder="e.g. FAH 120, DANGER CLOSE, TOT 30 SEC" class="w-full bg-gray-900 border border-yellow-600/50 p-2 rounded text-white focus:border-accent outline-none mb-1">
-                    <div class="flex flex-wrap gap-1 text-xs">
-                        <button onclick="appendValue('cas-l5', 'DANGER CLOSE')" class="bg-red-950/80 hover:bg-red-800 text-red-300 px-2 py-0.5 rounded border border-red-700 font-bold">DANGER CLOSE</button>
-                        <button onclick="appendValue('cas-l5', 'FINAL ATTACK HEADING 360')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">FAH 360</button>
-                        <button onclick="appendValue('cas-l5', 'GUN/ROCKETS ONLY')" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-1.5 py-0.5 rounded border border-gray-700">Gun/Rockets Only</button>
-                    </div>
+                <!-- Smart Format Quick Inserters -->
+                <div class="grid grid-cols-3 gap-1 text-xs">
+                    <button onclick="formatGrid(6)" class="bg-cyan-950 hover:bg-cyan-900 text-cyan-300 py-1.5 rounded border border-cyan-700 font-bold">GRID 6-D</button>
+                    <button onclick="formatGrid(8)" class="bg-cyan-950 hover:bg-cyan-900 text-cyan-300 py-1.5 rounded border border-cyan-700 font-bold">GRID 8-D</button>
+                    <button onclick="pressNum(' (KP ') " class="bg-cyan-950 hover:bg-cyan-900 text-cyan-300 py-1.5 rounded border border-cyan-700 font-bold">+ NUMPAD</button>
                 </div>
             </div>
 
-            <button onclick="genCASReadback()" class="w-full mt-4 bg-accent hover:bg-green-600 text-black font-bold py-2 rounded shadow transition active:scale-98">
-                GENERATE CAS READBACK SCRIPT [ENTER]
-            </button>
-        </div>
-    </section>
-
-    <!-- TAB 2: 9-LINE MEDEVAC -->
-    <section id="sec-medevac" class="space-y-3 hidden">
-        <div class="bg-panel p-4 rounded-lg border border-gray-700">
-            <h2 class="text-md font-bold text-red-400 mb-3 border-b border-gray-700 pb-1">9-LINE MEDICAL EVACUATION REQUEST</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-yellow-400 mb-1">Line 1: Pickup Location Grid</label>
-                    <input type="text" inputmode="numeric" id="med-l1" placeholder="e.g. GRID 082-114" class="w-full bg-gray-900 border border-yellow-600/50 p-2 rounded text-white outline-none mb-1.5">
-                    
-                    <div class="flex flex-wrap gap-1 text-xs">
-                        <span class="text-gray-500 py-0.5">Format:</span>
-                        <button onclick="setFieldValue('med-l1', 'GRID ___ - ___')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 px-2 py-0.5 rounded border border-gray-600">6-DIGIT</button>
-                        <button onclick="setFieldValue('med-l1', 'GRID ____ - ____')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 px-2 py-0.5 rounded border border-gray-600">8-DIGIT</button>
-                        <button onclick="setFieldValue('med-l1', 'GRID ___ - ___ (KP _)')" class="bg-gray-800 hover:bg-gray-700 text-cyan-400 px-2 py-0.5 rounded border border-gray-600">6-DIGIT + NUMPAD</button>
+            <!-- RADIO SCRIPT OUTPUT PANEL -->
+            <div class="bg-panel p-3 rounded-lg border border-accent/50 shadow-lg">
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-xs font-bold text-accent uppercase tracking-wider flex items-center gap-1">
+                        RADIO SCRIPT OUTPUT
+                    </h3>
+                    <div class="flex gap-1">
+                        <span id="timer-display" class="hidden text-xs bg-yellow-950 text-yellow-400 px-2 py-0.5 rounded border border-yellow-600 font-bold">45:00</span>
+                        <button onclick="copyToClipboard()" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 px-2 py-0.5 rounded">Copy</button>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs text-gray-400">Line 2: Freq / Call Sign & Suffix</label>
-                    <input type="text" id="med-l2" placeholder="e.g. 42.10 MHz / DUSTOFF 1-1" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400">Line 3: Patients by Precedence</label>
-                    <select id="med-l3" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
-                        <option value="A - Urgent (2 Hours)">A - Urgent</option>
-                        <option value="B - Urgent Surgical">B - Urgent Surgical</option>
-                        <option value="C - Priority (4 Hours)">C - Priority</option>
-                        <option value="D - Routine (24 Hours)">D - Routine</option>
-                        <option value="E - Convenience">E - Convenience</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400">Line 4: Special Equipment Required</label>
-                    <select id="med-l4" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
-                        <option value="A - None">A - None</option>
-                        <option value="B - Hoist">B - Hoist</option>
-                        <option value="C - Extraction Equipment">C - Extraction Equipment</option>
-                        <option value="D - Ventilator">D - Ventilator</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400">Line 5: Patients by Type</label>
-                    <input type="text" id="med-l5" placeholder="e.g. L+2 / A+1" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400">Line 6: Security at Pickup Site</label>
-                    <select id="med-l6" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
-                        <option value="N - No Enemy Troops">N - No Enemy Troops</option>
-                        <option value="P - Possible Enemy">P - Possible Enemy</option>
-                        <option value="E - Enemy in Area (Caution)">E - Enemy in Area</option>
-                        <option value="X - Armed Escort Required">X - Armed Escort Required</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400">Line 7: Method of Marking LZ</label>
-                    <select id="med-l7" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
-                        <option value="A - Standard Panels">A - Panels</option>
-                        <option value="B - Pyrotechnic Signal">B - Pyro</option>
-                        <option value="C - Smoke Signal">C - Smoke</option>
-                        <option value="D - None">D - None</option>
-                        <option value="E - IR / Strobe">E - IR / Strobe</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-xs text-gray-400">Line 8: Patient Nationality & Status</label>
-                    <input type="text" id="med-l8" placeholder="e.g. US Military: 2" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-gray-400">Line 9: NBC Contamination / Terrain Details</label>
-                    <input type="text" id="med-l9" placeholder="e.g. None / Trees North of LZ" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
-                </div>
+                <textarea id="readback-output" rows="6" readonly class="w-full bg-black text-nvg font-mono p-2.5 text-xs rounded border border-gray-800 focus:outline-none" placeholder="Generated script will appear here..."></textarea>
             </div>
 
-            <button onclick="genMEDEVACReadback()" class="w-full mt-4 bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded shadow transition active:scale-98">
-                GENERATE MEDEVAC READBACK SCRIPT
-            </button>
         </div>
-    </section>
+    </div>
 
-    <!-- TAB 3: QUICK REFS -->
-    <section id="sec-ref" class="space-y-3 hidden">
-        <div class="bg-panel p-4 rounded-lg border border-gray-700 text-xs space-y-3">
-            <h2 class="text-md font-bold text-accent border-b border-gray-700 pb-1">LZ STATUS CODES</h2>
-            <div class="grid grid-cols-2 gap-2">
-                <div class="p-2 bg-green-900/40 border border-green-600 rounded"><b>GREEN/COLD:</b> No enemy threat</div>
-                <div class="p-2 bg-yellow-900/40 border border-yellow-600 rounded"><b>AMBER:</b> Light contact / Possible threat</div>
-                <div class="p-2 bg-red-900/40 border border-red-600 rounded"><b>RED/HOT:</b> Active heavy engagement</div>
-                <div class="p-2 bg-gray-800 border border-gray-600 rounded"><b>CHEROKEE:</b> Emergency Abort LZ</div>
-            </div>
-
-            <h2 class="text-md font-bold text-accent border-b border-gray-700 pb-1 pt-2">PHONETIC NUMBERS</h2>
-            <p class="text-gray-300">0: ZE-RO | 1: WUN | 2: TOO | 3: TREE | 4: FOW-ER | 5: FIFE | 6: SIX | 7: SEV-EN | 8: AIT | 9: NIN-ER</p>
-        </div>
-    </section>
-
-    <!-- OUTPUT READBACK DISPLAY PANEL -->
-    <section class="mt-3 bg-panel p-4 rounded-lg border border-accent/50">
-        <div class="flex justify-between items-center mb-2">
-            <h3 class="text-xs font-bold text-accent uppercase tracking-wider">Radio Output Script</h3>
-            <button onclick="copyToClipboard()" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-600 px-2 py-1 rounded">
-                Copy
-            </button>
-        </div>
-        <textarea id="readback-output" rows="5" readonly class="w-full bg-black text-nvg font-mono p-3 text-xs rounded border border-gray-800 focus:outline-none" placeholder="Generated radio script will appear here..."></textarea>
-    </section>
-
+    <!-- Smart Logic Script -->
     <script>
-        // Set field value directly
-        function setFieldValue(inputId, value) {
-            const el = document.getElementById(inputId);
-            el.value = value;
-            el.focus();
+        let currentActiveInput = null;
+        let countdownInterval = null;
+
+        // Auto Save & Load LocalStorage
+        window.onload = function() {
+            ['chk-jtac', 'chk-pilot', 'chk-aircraft'].forEach(id => {
+                const saved = localStorage.getItem(id);
+                if (saved) document.getElementById(id).value = saved;
+                document.getElementById(id).addEventListener('input', (e) => localStorage.setItem(id, e.target.value));
+            });
         }
 
-        // Append value with comma formatting
-        function appendValue(inputId, value) {
+        // Track Active Focused Input Field
+        function setActiveInput(el) {
+            if (currentActiveInput) currentActiveInput.classList.remove('active-field');
+            currentActiveInput = el;
+            currentActiveInput.classList.add('active-field');
+            document.getElementById('active-field-name').innerText = 'TARGET: ' + (el.previousElementSibling?.innerText || el.placeholder || 'FIELD').toUpperCase();
+        }
+
+        // Numpad Controls
+        function pressNum(num) {
+            if (!currentActiveInput) setActiveInput(document.getElementById('chk-pos'));
+            currentActiveInput.value += num;
+            autoFormatGrid(currentActiveInput);
+        }
+
+        function pressBackspace() {
+            if (currentActiveInput) {
+                currentActiveInput.value = currentActiveInput.value.slice(0, -1);
+            }
+        }
+
+        // Smart Auto Grid Formatter
+        function autoFormatGrid(input) {
+            let val = input.value.replace(/[^0-9]/g, '');
+            if (val.length === 6) {
+                input.value = `GRID ${val.slice(0,3)}-${val.slice(3,6)}`;
+            } else if (val.length === 7) {
+                input.value = `GRID ${val.slice(0,3)}-${val.slice(3,6)} (KP ${val.slice(6,7)})`;
+            } else if (val.length === 8) {
+                input.value = `GRID ${val.slice(0,4)}-${val.slice(4,8)}`;
+            }
+        }
+
+        function formatGrid(digits) {
+            if (!currentActiveInput) setActiveInput(document.getElementById('chk-pos'));
+            let val = currentActiveInput.value.replace(/[^0-9]/g, '');
+            if (digits === 6 && val.length >= 6) {
+                currentActiveInput.value = `GRID ${val.slice(0,3)}-${val.slice(3,6)}`;
+            } else if (digits === 8 && val.length >= 8) {
+                currentActiveInput.value = `GRID ${val.slice(0,4)}-${val.slice(4,8)}`;
+            }
+        }
+
+        function setFieldValue(inputId, val) {
             const el = document.getElementById(inputId);
-            if (el.value.trim() === '') {
-                el.value = value;
-            } else {
-                if (!el.value.includes(value)) {
-                    el.value += ', ' + value;
+            el.value = val;
+            localStorage.setItem(inputId, val);
+        }
+
+        function appendValue(inputId, val) {
+            const el = document.getElementById(inputId);
+            if (!el.value.includes(val)) {
+                el.value = el.value ? el.value + ', ' + val : val;
+            }
+        }
+
+        // Playtime Countdown Timer
+        function startTimer() {
+            const mins = parseInt(document.getElementById('chk-playtime').value) || 30;
+            let seconds = mins * 60;
+            const timerDisplay = document.getElementById('timer-display');
+            timerDisplay.classList.remove('hidden');
+
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                let m = Math.floor(seconds / 60);
+                let s = seconds % 60;
+                timerDisplay.innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                    timerDisplay.innerText = "BINGO FUEL!";
+                    alert("⚠️ BINGO FUEL WARNING!");
+                }
+                seconds--;
+            }, 1000);
+        }
+
+        // Speech-to-Text (Voice Control)
+        let recognition;
+        function toggleVoice() {
+            const status = document.getElementById('voice-status');
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert("Speech recognition not supported on this browser.");
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!recognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => status.classList.remove('hidden');
+                recognition.onend = () => status.classList.add('hidden');
+                
+                recognition.onresult = (e) => {
+                    const speech = e.results[0][0].transcript.toUpperCase();
+                    parseVoiceCommand(speech);
+                };
+            }
+            recognition.start();
+        }
+
+        // Smart Voice Command Parser
+        function parseVoiceCommand(text) {
+            console.log("Voice Input:", text);
+            
+            // Extract Grid Numbers (e.g. "GRID 0 1 2 3 4 5")
+            const gridMatch = text.match(/GRID\s*([\d\s]{6,8})/i) || text.match(/([\d\s]{6,8})/);
+            if (gridMatch) {
+                const nums = gridMatch[0].replace(/\s/g, '');
+                if (nums.length >= 6) {
+                    document.getElementById('chk-pos').value = `GRID ${nums.slice(0,3)}-${nums.slice(3,6)}`;
                 }
             }
+
+            // Extract Aircraft
+            if (text.includes("UH 60") || text.includes("BLACKHAWK")) document.getElementById('chk-aircraft').value = "2x UH-60M";
+            if (text.includes("APACHE") || text.includes("AH 64")) document.getElementById('chk-aircraft').value = "1x AH-64D";
+
+            genCheckinScript();
         }
 
         // Tab Switcher
@@ -343,28 +403,24 @@
             document.getElementById(`tab-${tab}`).className = 'tab-btn bg-accent text-black font-bold py-2 rounded text-center text-xs md:text-sm shadow';
         }
 
-        // Check-in Script Generator
+        // Generators
         function genCheckinScript() {
             const jtac = document.getElementById('chk-jtac').value || "JTAC";
             const pilot = document.getElementById('chk-pilot').value || "VORTEX 1-1";
             const ac = document.getElementById('chk-aircraft').value || "1x UH-60M";
             const pos = document.getElementById('chk-pos').value || "INBOUND TO AO";
             const ord = document.getElementById('chk-ord').value || "STANDARD ARMAMENT";
-            const playtime = document.getElementById('chk-playtime').value ? `${document.getElementById('chk-playtime').value} MINUTES` : "30 MINUTES";
-            const remarks = document.getElementById('chk-remarks').value || "NONE";
+            const playtime = document.getElementById('chk-playtime').value ? `${document.getElementById('chk-playtime').value} MIN` : "30 MIN";
 
             const script = `"${jtac}, THIS IS ${pilot}.\n` +
                            `• MISSION/AIRCRAFT: ${ac}\n` +
                            `• POSITION/ALT: ${pos}\n` +
                            `• ORDNANCE: ${ord}\n` +
-                           `• PLAYTIME: ${playtime}\n` +
-                           `• REMARKS: ${remarks}.\n` +
+                           `• PLAYTIME: ${playtime}.\n` +
                            `READY FOR TASKING."`;
-            
             document.getElementById('readback-output').value = script;
         }
 
-        // 5-Line CAS Readback Logic
         function genCASReadback() {
             const l1 = document.getElementById('cas-l1').value || "ROGER";
             const l3 = document.getElementById('cas-l3').value || "[GRID OMITTED]";
@@ -372,62 +428,34 @@
 
             const script = `${l1}, READBACK:\n` +
                            `• LINE 3 (TARGET): ${l3}\n` +
-                           `• LINE 5 (REMARKS/RESTRICTIONS): ${l5}\n\n` +
+                           `• LINE 5 (REMARKS): ${l5}\n\n` +
                            `"COPY TARGET ${l3}, RESTRICTIONS: ${l5}. INBOUND."`;
-            
             document.getElementById('readback-output').value = script;
         }
 
-        // 9-Line MEDEVAC Logic
         function genMEDEVACReadback() {
             const l1 = document.getElementById('med-l1').value || "[GRID OMITTED]";
             const l2 = document.getElementById('med-l2').value || "CURRENT NET";
             const l3 = document.getElementById('med-l3').value;
-            const l4 = document.getElementById('med-l4').value;
-            const l5 = document.getElementById('med-l5').value || "1 LITTER";
-            const l6 = document.getElementById('med-l6').value;
-            const l7 = document.getElementById('med-l7').value;
 
             const script = `DUSTOFF CONTROL, ACKNOWLEDGE 9-LINE MEDEVAC:\n` +
                            `• LINE 1 (LOCATION): ${l1}\n` +
                            `• LINE 2 (FREQ/CALLSIGN): ${l2}\n` +
-                           `• LINE 3 (PATIENTS): ${l3}\n` +
-                           `• LINE 4 (EQUIPMENT): ${l4}\n` +
-                           `• LINE 5 (PATIENT TYPE): ${l5}\n` +
-                           `• LINE 6 (SECURITY): ${l6}\n` +
-                           `• LINE 7 (MARKING): ${l7}\n\n` +
+                           `• LINE 3 (PATIENTS): ${l3}\n\n` +
                            `"COPIED ALL. EN ROUTE TO LZ."`;
-
             document.getElementById('readback-output').value = script;
         }
 
-        // Clear All Fields
         function clearAllForms() {
             document.querySelectorAll('input').forEach(i => i.value = '');
             document.getElementById('readback-output').value = '';
         }
 
-        // Copy Text Function
         function copyToClipboard() {
             const copyText = document.getElementById("readback-output");
             copyText.select();
             document.execCommand("copy");
         }
-
-        // Keyboard Shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.altKey && (e.key === 'c' || e.key === 'C')) {
-                e.preventDefault();
-                clearAllForms();
-            }
-            if (e.key === 'Enter') {
-                if (!document.getElementById('sec-checkin').classList.contains('hidden')) {
-                    genCheckinScript();
-                } else if (!document.getElementById('sec-cas').classList.contains('hidden')) {
-                    genCASReadback();
-                }
-            }
-        });
     </script>
 </body>
 </html>
