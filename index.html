@@ -8,31 +8,24 @@
     <style>
         body { user-select: none; -webkit-user-select: none; }
         .tab-active { background-color: #15803d !important; color: white !important; font-weight: bold; }
-        .num-btn { font-size: 1.5rem; font-weight: bold; padding: 0.8rem; }
+        .num-btn { font-size: 1.4rem; font-weight: bold; padding: 0.75rem; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-mono pb-12">
 
     <!-- Header & Mode Switcher -->
-    <header class="bg-gray-800 p-2 border-b border-gray-700 sticky top-0 z-10">
+    <header class="bg-gray-800 p-2 border-b border-gray-700 sticky top-0 z-20">
         <div class="flex justify-between items-center mb-2">
             <h1 class="text-xs font-bold text-green-400">🪖 REFORGER PILOT KNEEPAD</h1>
             <span id="clock" class="text-xs text-gray-400">00:00:00 Z</span>
         </div>
-        <!-- Big Mode Buttons (4 Tabs) -->
-        <div class="grid grid-cols-4 gap-1">
-            <button onclick="switchMode('checkin')" id="btn-checkin" class="tab-btn tab-active py-2 bg-gray-700 rounded text-center font-bold text-xs">
-                CHECK-IN<br><span class="text-[10px] font-normal">(MNPOPA)</span>
-            </button>
-            <button onclick="switchMode('5line')" id="btn-5line" class="tab-btn py-2 bg-gray-700 rounded text-center font-bold text-xs">
-                5-LINE<br><span class="text-[10px] font-normal">(Rotary CAS)</span>
-            </button>
-            <button onclick="switchMode('9line')" id="btn-9line" class="tab-btn py-2 bg-gray-700 rounded text-center font-bold text-xs">
-                9-LINE<br><span class="text-[10px] font-normal">(Std CAS)</span>
-            </button>
-            <button onclick="switchMode('medevac')" id="btn-medevac" class="tab-btn py-2 bg-gray-700 rounded text-center font-bold text-xs">
-                MEDEVAC<br><span class="text-[10px] font-normal">(CASEVAC)</span>
-            </button>
+        <!-- Big Mode Buttons (5 Tabs) -->
+        <div class="grid grid-cols-5 gap-1">
+            <button onclick="switchMode('checkin')" id="btn-checkin" class="tab-btn py-2 bg-gray-700 rounded text-center font-bold text-[10px]">CHK-IN<br><span class="text-[8px] font-normal">(MNPOPA)</span></button>
+            <button onclick="switchMode('5line')" id="btn-5line" class="tab-btn py-2 bg-gray-700 rounded text-center font-bold text-[10px]">5-LINE<br><span class="text-[8px] font-normal">(Rotary)</span></button>
+            <button onclick="switchMode('9line')" id="btn-9line" class="tab-btn tab-active py-2 bg-gray-700 rounded text-center font-bold text-[10px]">9-LINE<br><span class="text-[8px] font-normal">(Std CAS)</span></button>
+            <button onclick="switchMode('medevac')" id="btn-medevac" class="tab-btn py-2 bg-gray-700 rounded text-center font-bold text-[10px]">MEDEVAC<br><span class="text-[8px] font-normal">(911)</span></button>
+            <button onclick="switchMode('facts')" id="btn-facts" class="tab-btn py-2 bg-yellow-800 rounded text-center font-bold text-[10px]">FACTS<br><span class="text-[8px] font-normal">(Brevity)</span></button>
         </div>
     </header>
 
@@ -40,8 +33,7 @@
     <main class="flex-1 p-3 overflow-y-auto">
         
         <!-- 🟡 MODE: CHECK-IN BRIEF (MNPOPA) -->
-        <div id="mode-checkin" class="space-y-3">
-            <!-- Aircraft Loadout Presets -->
+        <div id="mode-checkin" class="space-y-3 hidden">
             <div class="bg-gray-800 p-2 rounded-lg border border-yellow-500/50">
                 <label class="text-xs text-yellow-400 font-bold block mb-1">⚡ QUICK AIRCRAFT PRESETS</label>
                 <div class="grid grid-cols-3 gap-1">
@@ -52,14 +44,8 @@
             </div>
 
             <div class="grid grid-cols-2 gap-2">
-                <div class="bg-gray-800 p-2 rounded">
-                    <label class="text-xs text-green-400 font-bold">M - Mission & Callsign</label>
-                    <input type="text" id="chk-m" value="Slayer 01 / CAS Support" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white">
-                </div>
-                <div class="bg-gray-800 p-2 rounded">
-                    <label class="text-xs text-green-400 font-bold">N - Number & Type</label>
-                    <input type="text" id="chk-n" value="2x AH-64 Apache" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white">
-                </div>
+                <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-green-400 font-bold">M - Mission & Callsign</label><input type="text" id="chk-m" value="Slayer 01 / CAS Support" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white"></div>
+                <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-green-400 font-bold">N - Number & Type</label><input type="text" id="chk-n" value="2x AH-64 Apache" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white"></div>
             </div>
 
             <div class="bg-gray-800 p-2 rounded">
@@ -68,83 +54,93 @@
                 <div class="flex gap-1 mt-1">
                     <button onclick="appendQuickText('chk-p', 'HA-North')" class="bg-gray-700 text-[10px] px-2 py-1 rounded">HA-North</button>
                     <button onclick="appendQuickText('chk-p', 'HA-South')" class="bg-gray-700 text-[10px] px-2 py-1 rounded">HA-South</button>
-                    <button onclick="appendQuickText('chk-p', 'HA-East')" class="bg-gray-700 text-[10px] px-2 py-1 rounded">HA-East</button>
                 </div>
             </div>
 
-            <div class="bg-gray-800 p-2 rounded">
-                <label class="text-xs text-green-400 font-bold">O - Ordnance (Weapons Loadout)</label>
-                <input type="text" id="chk-o" value="8x Hellfire, 38x Hydra, 600x 30mm" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white">
-            </div>
+            <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-green-400 font-bold">O - Ordnance (Weapons Loadout)</label><input type="text" id="chk-o" value="8x Hellfire, 38x Hydra, 600x 30mm" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white"></div>
 
             <div class="grid grid-cols-2 gap-2">
-                <div class="bg-gray-800 p-2 rounded">
-                    <label class="text-xs text-green-400 font-bold">P - Playtime (Fuel Status)</label>
-                    <input type="text" id="chk-play" value="45 Minutes" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white">
-                    <div class="flex gap-1 mt-1">
-                        <button onclick="document.getElementById('chk-play').value='20 Mins'" class="bg-gray-700 text-[10px] px-2 py-1 rounded">20m</button>
-                        <button onclick="document.getElementById('chk-play').value='30 Mins'" class="bg-gray-700 text-[10px] px-2 py-1 rounded">30m</button>
-                        <button onclick="document.getElementById('chk-play').value='45 Mins'" class="bg-gray-700 text-[10px] px-2 py-1 rounded">45m</button>
-                    </div>
-                </div>
-                <div class="bg-gray-800 p-2 rounded">
-                    <label class="text-xs text-green-400 font-bold">A - Capabilities / Sensors</label>
-                    <input type="text" id="chk-a" value="FLIR, NVG, Laser Spot Tracker" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white">
-                </div>
+                <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-green-400 font-bold">P - Playtime (Fuel)</label><input type="text" id="chk-play" value="45 Mins" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white"></div>
+                <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-green-400 font-bold">A - Capabilities</label><input type="text" id="chk-a" value="FLIR, NVG, Laser Spot Tracker" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white"></div>
             </div>
 
-            <button onclick="copyCheckInScript()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-bold p-3 rounded text-xs">
-                📢 READ CHECK-IN TRANSMISSION SCRIPT
-            </button>
+            <button onclick="copyCheckInScript()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-bold p-3 rounded text-xs">📢 READ CHECK-IN TRANSMISSION SCRIPT</button>
         </div>
 
         <!-- 🟢 MODE: 5-LINE ROTARY CAS -->
         <div id="mode-5line" class="space-y-3 hidden">
-            <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
+            <div class="bg-gray-800 p-2 rounded-lg border border-gray-700">
                 <label class="text-xs text-green-400 font-bold block mb-1">L1: GAME PLAN & ORDNANCE</label>
-                <input type="text" id="5l-l1" value="Type 2, BOT, 30mm & Hydras" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-3 text-lg rounded border border-gray-600 text-white">
+                <input type="text" id="5l-l1" value="Type 2, BOT, 30mm & Hydras" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-gray-600 text-white">
             </div>
-            <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
+            <div class="bg-gray-800 p-2 rounded-lg border border-gray-700">
                 <label class="text-xs text-green-400 font-bold block mb-1">L2: FRIENDLY POS & MARK</label>
-                <input type="text" id="5l-l2" placeholder="Grid & Smoke Color" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-3 text-lg rounded border border-gray-600 text-white">
-                <div class="flex gap-2 mt-2">
-                    <button onclick="appendQuickText('5l-l2', 'Purple Smoke')" class="bg-purple-900 text-purple-200 text-xs px-3 py-2 rounded">Purple</button>
-                    <button onclick="appendQuickText('5l-l2', 'Red Smoke')" class="bg-red-900 text-red-200 text-xs px-3 py-2 rounded">Red</button>
-                    <button onclick="appendQuickText('5l-l2', 'IR Strobe')" class="bg-yellow-900 text-yellow-200 text-xs px-3 py-2 rounded">IR Strobe</button>
+                <input type="text" id="5l-l2" placeholder="Grid & Smoke Color" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-gray-600 text-white">
+                <div class="flex gap-1 mt-1">
+                    <button onclick="appendQuickText('5l-l2', 'Purple Smoke')" class="bg-purple-900 text-purple-200 text-[10px] px-2 py-1 rounded">Purple</button>
+                    <button onclick="appendQuickText('5l-l2', 'Red Smoke')" class="bg-red-900 text-red-200 text-[10px] px-2 py-1 rounded">Red</button>
+                    <button onclick="appendQuickText('5l-l2', 'IR Strobe')" class="bg-yellow-900 text-yellow-200 text-[10px] px-2 py-1 rounded">IR Strobe</button>
                 </div>
             </div>
-            <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
+            <div class="bg-gray-800 p-2 rounded-lg border border-gray-700">
                 <label class="text-xs text-green-400 font-bold block mb-1">L3: TARGET LOCATION (From Friendlies)</label>
-                <input type="text" id="5l-l3" placeholder="Dir/Dist e.g. 300m North" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-3 text-lg rounded border border-gray-600 text-white">
+                <input type="text" id="5l-l3" placeholder="Dir/Dist e.g. 300m North" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-gray-600 text-white">
             </div>
-            <div class="bg-gray-800 p-3 rounded-lg border border-gray-700">
-                <label class="text-xs text-green-400 font-bold block mb-1">L4: TARGET DESC & MARK</label>
-                <input type="text" id="5l-l4" placeholder="Target & Laser/IR" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-3 text-lg rounded border border-gray-600 text-white">
+            
+            <!-- Target Description with Selector Button -->
+            <div class="bg-gray-800 p-2 rounded-lg border border-gray-700">
+                <div class="flex justify-between items-center mb-1">
+                    <label class="text-xs text-green-400 font-bold">L4: TARGET DESC & MARK</label>
+                    <button onclick="openTargetModal('5l-l4')" class="bg-green-700 hover:bg-green-600 text-white text-[10px] px-2 py-1 rounded font-bold">🎯 SELECT ARMA TARGET</button>
+                </div>
+                <input type="text" id="5l-l4" placeholder="Target & Laser/IR" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-gray-600 text-white">
             </div>
-            <div class="bg-gray-800 p-3 rounded-lg border border-red-500/50">
-                <label class="text-xs text-red-400 font-bold block mb-1">L5: REMARKS & RESTRICTIONS (MANDATORY)</label>
-                <input type="text" id="5l-l5" placeholder="FAH / Danger Close / MANPADS" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-3 text-lg rounded border border-red-600 text-red-200">
+
+            <!-- Mandatory Readback Section -->
+            <div class="bg-gray-800 p-2 rounded-lg border-2 border-red-500">
+                <label class="text-xs text-red-400 font-bold block mb-1">🚨 L5: REMARKS & RESTRICTIONS (MANDATORY READBACK)</label>
+                <input type="text" id="5l-l5" placeholder="FAH 360 / Danger Close / MANPADS" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-red-600 text-red-200">
+                <button onclick="readback5Line()" class="w-full mt-2 bg-red-700 text-white font-bold py-2 rounded text-xs">📢 READBACK RESTRICTIONS</button>
             </div>
         </div>
 
         <!-- 🔵 MODE: 9-LINE CAS -->
-        <div id="mode-9line" class="space-y-3 hidden">
+        <div id="mode-9line" class="space-y-2">
             <div class="grid grid-cols-2 gap-2">
                 <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L1: IP/BP</label><input type="text" id="9l-l1" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
                 <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L2: Heading</label><input type="text" id="9l-l2" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L3: Distance</label><input type="text" id="9l-l3" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
-                <div class="bg-gray-800 p-2 rounded border border-yellow-500"><label class="text-xs text-yellow-400 font-bold">L4: Elev (READBACK)</label><input type="text" id="9l-l4" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-yellow-200"></div>
+                <!-- Readback Required Line 4 -->
+                <div class="bg-gray-800 p-2 rounded border border-yellow-500"><label class="text-xs text-yellow-400 font-bold">⚠️ L4: Elev (READBACK)</label><input type="text" id="9l-l4" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-yellow-200"></div>
             </div>
-            <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L5: Target Desc</label><input type="text" id="9l-l5" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
-            <div class="bg-gray-800 p-2 rounded border border-yellow-500"><label class="text-xs text-yellow-400 font-bold">L6: Grid Location (READBACK)</label><input type="text" id="9l-l6" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-yellow-200"></div>
+
+            <!-- Target Selection -->
+            <div class="bg-gray-800 p-2 rounded">
+                <div class="flex justify-between items-center mb-1">
+                    <label class="text-xs text-gray-400">L5: Target Description</label>
+                    <button onclick="openTargetModal('9l-l5')" class="bg-green-700 text-white text-[10px] px-2 py-0.5 rounded font-bold">🎯 SELECT ARMA TARGET</button>
+                </div>
+                <input type="text" id="9l-l5" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white">
+            </div>
+
+            <!-- Readback Required Line 6 -->
+            <div class="bg-gray-800 p-2 rounded border border-yellow-500"><label class="text-xs text-yellow-400 font-bold">⚠️ L6: Grid Location (READBACK)</label><input type="text" id="9l-l6" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-yellow-200"></div>
+            
             <div class="grid grid-cols-2 gap-2">
-                <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L7: Mark</label><input type="text" id="9l-l7" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
+                <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L7: Mark Type</label><input type="text" id="9l-l7" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
                 <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L8: Friendlies</label><input type="text" id="9l-l8" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
             </div>
             <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L9: Egress</label><input type="text" id="9l-l9" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
-            <div class="bg-gray-800 p-2 rounded border border-red-500"><label class="text-xs text-red-400 font-bold">Restrictions (READBACK)</label><input type="text" id="9l-rest" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-red-200"></div>
+            
+            <!-- Readback Required Restrictions -->
+            <div class="bg-gray-800 p-2 rounded border-2 border-red-500">
+                <label class="text-xs text-red-400 font-bold">🚨 RESTRICTIONS (MANDATORY READBACK)</label>
+                <input type="text" id="9l-rest" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-red-200">
+            </div>
+
+            <button onclick="readback9Line()" class="w-full bg-yellow-600 hover:bg-yellow-700 text-black font-bold py-2 rounded text-xs">📢 READBACK LINE 4, 6 & RESTRICTIONS</button>
         </div>
 
         <!-- 🔴 MODE: MEDEVAC -->
@@ -155,8 +151,20 @@
             <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-red-400 font-bold">L7: Method of Marking</label><input type="text" id="med-l7" placeholder="Smoke / Panel / IR" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
         </div>
 
+        <!-- 📖 MODE: FACTS & BREVITY DICTIONARY -->
+        <div id="mode-facts" class="space-y-3 hidden">
+            <div class="bg-gray-800 p-2 rounded border border-yellow-500">
+                <label class="text-xs text-yellow-400 font-bold block mb-1">🔍 MULTI-SERVICE BREVITY CODE SEARCH</label>
+                <input type="text" id="brevity-search" oninput="searchBrevity()" placeholder="Search terms e.g. Angels, Rifle, Winchester..." class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white">
+            </div>
+
+            <div id="brevity-list" class="space-y-2 max-h-[400px] overflow-y-auto">
+                <!-- JS Populates Code Items Here -->
+            </div>
+        </div>
+
         <!-- 🎛️ BIG NUMPAD OVERLAY -->
-        <div class="mt-4 bg-gray-800 p-3 rounded-lg border border-gray-700 shadow-xl">
+        <div id="numpad-section" class="mt-4 bg-gray-800 p-3 rounded-lg border border-gray-700 shadow-xl">
             <div class="text-xs text-gray-400 mb-2 flex justify-between">
                 <span>TOUCH NUMPAD</span>
                 <span id="active-label" class="text-green-400 font-bold">Select any box above</span>
@@ -188,9 +196,82 @@
         <button onclick="clearCurrentForm()" class="w-full mt-4 p-3 bg-gray-700 text-gray-300 rounded font-bold text-xs">CLEAR ALL FIELDS</button>
     </main>
 
+    <!-- 🎯 TARGET SELECTOR MODAL (ARMA REFORGER UNITS) -->
+    <div id="target-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-green-500 rounded-lg w-full max-w-md p-4 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-700">
+                <h3 class="text-sm font-bold text-green-400">🎯 ARMA REFORGER TARGET SELECTOR</h3>
+                <button onclick="closeTargetModal()" class="text-gray-400 text-xl font-bold">&times;</button>
+            </div>
+            
+            <div class="overflow-y-auto my-3 space-y-3 flex-1 text-xs">
+                <!-- Armored Vehicles -->
+                <div>
+                    <h4 class="text-yellow-400 font-bold mb-1">🛡️ ARMOR & VEHICLES</h4>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="selectTarget('1x MBT T-72B Tank')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">T-72B Tank</button>
+                        <button onclick="selectTarget('1x BTR-70 APC')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">BTR-70 APC</button>
+                        <button onclick="selectTarget('1x BMP-1 IFV')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">BMP-1 IFV</button>
+                        <button onclick="selectTarget('1x BRDM-2 Scout')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">BRDM-2 Recon</button>
+                        <button onclick="selectTarget('1x Ural-375 Supply Truck')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">Ural-375 Truck</button>
+                        <button onclick="selectTarget('1x UAZ-469 Light Utility')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">UAZ-469 Light</button>
+                    </div>
+                </div>
+
+                <!-- Infantry Teams -->
+                <div>
+                    <h4 class="text-yellow-400 font-bold mb-1">🪖 INFANTRY & WEAPONS</h4>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="selectTarget('Infantry Fireteam (4 pax)')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">Infantry Fireteam</button>
+                        <button onclick="selectTarget('Infantry Squad (8 pax) in open')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">Infantry Squad</button>
+                        <button onclick="selectTarget('PKM MG Position')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">PKM MG Nest</button>
+                        <button onclick="selectTarget('2x RPG Anti-Tank Team')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">RPG AT Team</button>
+                        <button onclick="selectTarget('MANPADS Igla-S Threat')" class="bg-red-900 p-2 rounded text-left hover:bg-red-700 font-bold text-white">⚠️ MANPADS Team</button>
+                        <button onclick="selectTarget('82mm Mortar Position')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">82mm Mortar</button>
+                    </div>
+                </div>
+
+                <!-- Structures & Aviation -->
+                <div>
+                    <h4 class="text-yellow-400 font-bold mb-1">🏢 STRUCTURES & AIR</h4>
+                    <div class="grid grid-cols-2 gap-1">
+                        <button onclick="selectTarget('Sandbag Bunker Compound')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">Bunker / Trench</button>
+                        <button onclick="selectTarget('Radio Tower Station')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">Radio Mast</button>
+                        <button onclick="selectTarget('Supply Cache Depot')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">Supply Cache</button>
+                        <button onclick="selectTarget('1x Mi-8 Hip Helicopter')" class="bg-gray-700 p-2 rounded text-left hover:bg-green-700">Mi-8 Helicopter</button>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeTargetModal()" class="w-full bg-gray-700 p-2 rounded text-gray-300 font-bold">CANCEL</button>
+        </div>
+    </div>
+
     <!-- JS Logic -->
     <script>
         let currentInput = null;
+        let targetFieldId = null;
+
+        const brevityCodes = [
+            { code: "ANGELS", def: "ความสูงของอากาศยาน หน่วยเป็นพันฟุต (เช่น Angels 2 = 2,000 ft)" },
+            { code: "CHERUBS", def: "ความสูงของอากาศยาน หน่วยเป็นร้อยฟุต (เช่น Cherubs 5 = 500 ft)" },
+            { code: "CLEARED HOT", def: "อนุญาตให้อาวุธออกจากเครื่อง/โจมตีเป้าหมายได้" },
+            { code: "CLEARED TO ENGAGE", def: "อนุญาตให้ออกอาวุธสำหรับ Type 3 CAS หรือสถานการณ์สู้รบตามเงื่อนไข" },
+            { code: "IN HOT", def: "รายงานเมื่อเครื่องกำลังพุ่งเข้าสู่วงรอบการยิง/ใช้อาวุธ" },
+            { code: "OFF COLD", def: "รายงานเมื่อทำการยิงเสร็จแล้ว และผละออกจากวงรอบเป้าหมาย" },
+            { code: "RIFLE", def: "ยิงขีปนาวุธนำวิถีอากาศสู่พื้น (เช่น AGM-114 Hellfire)" },
+            { code: "PICKLE", def: "ปล่อยระเบิดลงมาจากเครื่อง" },
+            { code: "GUNS GUNS GUNS", def: "ใช้อาวุธปืนใหญ่/ปืนกลอากาศยิงเป้าหมาย" },
+            { code: "WINCHESTER", def: "อาวุธบนเครื่องหมดแล้ว (No Ordnance Remaining)" },
+            { code: "BINGO", def: "น้ำมันเชื้อเพลิงอยู่ในระดับต่ำสุด ต้องบินกลับฐานทันที" },
+            { code: "VISUAL", def: "มองเห็นอากาศยานฝ่ายเดียวกันด้วยสายตา" },
+            { code: "BLIND", def: "มองไม่เห็นอากาศยานฝ่ายเดียวกัน (ตรงข้ามกับ Visual)" },
+            { code: "TALLY", def: "มองเห็นเป้าหมายหรือภัยคุกคามด้วยสายตา" },
+            { code: "NO JOY", def: "มองไม่เห็นเป้าหมาย/ภัยคุกคามตามที่ระบุ" },
+            { code: "SPARKLE", def: "เป้าหมายถูกชี้ด้วยแสงอินฟราเรด (IR Pointer)" },
+            { code: "DEADEYE", def: "อุปกรณ์ Laser Designator ขัดข้อง ยิงแสงเลเซอร์ไม่ได้" },
+            { code: "DANGER CLOSE", def: "ฝ่ายเดียวกันอยู่ใกล้ระยะอันตรายของรัศมีระเบิด ต้องระวังอย่างยิ่ง" }
+        ];
 
         function switchMode(mode) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
@@ -200,36 +281,81 @@
             document.getElementById('mode-5line').classList.add('hidden');
             document.getElementById('mode-9line').classList.add('hidden');
             document.getElementById('mode-medevac').classList.add('hidden');
+            document.getElementById('mode-facts').classList.add('hidden');
 
             document.getElementById('mode-' + mode).classList.remove('hidden');
+            
+            if (mode === 'facts') {
+                document.getElementById('numpad-section').classList.add('hidden');
+                renderBrevity(brevityCodes);
+            } else {
+                document.getElementById('numpad-section').classList.remove('hidden');
+            }
             currentInput = null;
-            document.getElementById('active-label').innerText = "Select any box above";
+        }
+
+        function openTargetModal(fieldId) {
+            targetFieldId = fieldId;
+            document.getElementById('target-modal').classList.remove('hidden');
+        }
+
+        function closeTargetModal() {
+            document.getElementById('target-modal').classList.add('hidden');
+        }
+
+        function selectTarget(targetText) {
+            if (targetFieldId) {
+                document.getElementById(targetFieldId).value = targetText;
+            }
+            closeTargetModal();
+        }
+
+        function readback9Line() {
+            const elev = document.getElementById('9l-l4').value || "[EMPTY]";
+            const grid = document.getElementById('9l-l6').value || "[EMPTY]";
+            const rest = document.getElementById('9l-rest').value || "None";
+            alert(`📢 9-LINE MANDATORY READBACK:\n\n• Line 4 (Elev): ${elev}\n• Line 6 (Grid): ${grid}\n• Restrictions: ${rest}`);
+        }
+
+        function readback5Line() {
+            const rest = document.getElementById('5l-l5').value || "None";
+            alert(`📢 5-LINE MANDATORY READBACK:\n\n• Line 5 (Restrictions): ${rest}`);
+        }
+
+        function renderBrevity(data) {
+            const container = document.getElementById('brevity-list');
+            container.innerHTML = data.map(item => `
+                <div class="bg-gray-800 p-2 rounded border border-gray-700">
+                    <span class="text-green-400 font-bold text-sm">${item.code}</span>
+                    <p class="text-xs text-gray-300 mt-0.5">${item.def}</p>
+                </div>
+            `).join('');
+        }
+
+        function searchBrevity() {
+            const q = document.getElementById('brevity-search').value.toLowerCase();
+            const filtered = brevityCodes.filter(c => c.code.toLowerCase().includes(q) || c.def.toLowerCase().includes(q));
+            renderBrevity(filtered);
         }
 
         function setActiveInput(elem) {
             currentInput = elem;
-            document.querySelectorAll('input').forEach(i => i.classList.remove('border-green-400', 'bg-gray-800'));
+            document.querySelectorAll('input').forEach(i => i.classList.remove('border-green-400'));
             elem.classList.add('border-green-400');
             document.getElementById('active-label').innerText = "Editing: " + (elem.previousElementSibling?.innerText || "Selected Field");
         }
 
         function pressNum(val) {
-            if (currentInput) {
-                currentInput.value += val;
-            }
+            if (currentInput) currentInput.value += val;
         }
 
         function backspaceNum() {
-            if (currentInput) {
-                currentInput.value = currentInput.value.slice(0, -1);
-            }
+            if (currentInput) currentInput.value = currentInput.value.slice(0, -1);
         }
 
         function appendQuickText(inputId, text) {
             const input = document.getElementById(inputId);
-            if (input) {
-                input.value = input.value ? input.value + " / " + text : text;
-            }
+            if (input) input.value = input.value ? input.value + " / " + text : text;
         }
 
         function applyPreset(type) {
@@ -256,9 +382,7 @@
             alert("📻 VOICE SCRIPT:\n\n" + script);
         }
 
-        function quickRadio(msg) {
-            alert("RADIO TRANSMIT: " + msg);
-        }
+        function quickRadio(msg) { alert("RADIO TRANSMIT: " + msg); }
 
         function clearCurrentForm() {
             if (confirm("ล้างข้อมูลในแบบฟอร์มทั้งหมด?")) {
