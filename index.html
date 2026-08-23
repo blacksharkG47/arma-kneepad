@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>US Aviator Tactical Kneepad v2.0 - Arma Reforger</title>
+    <title>US Aviator Tactical Kneepad v2.6 - Arma Reforger</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -13,8 +13,8 @@
                 extend: {
                     colors: {
                         nvg: '#00ff66',
-                        cockpit: '#0b0f12',
-                        panel: '#141c21',
+                        cockpit: '#0a0d0f',
+                        panel: '#12181d',
                         accent: '#22c55e',
                         cyber: '#06b6d4'
                     }
@@ -26,8 +26,11 @@
         input, select, button { touch-action: manipulation; }
         body { -webkit-user-select: none; user-select: none; }
         input, textarea { -webkit-user-select: text; user-select: text; }
-        .num-btn { @apply bg-gray-800 hover:bg-gray-700 active:bg-cyan-600 text-cyan-300 font-bold p-3 rounded border border-gray-600 text-base flex justify-center items-center transition shadow; }
+        /* Big & Responsive Numpad Buttons */
+        .big-num-btn { @apply bg-gray-800 hover:bg-gray-700 active:bg-cyan-600 text-cyan-300 font-bold p-4 rounded-lg border-2 border-gray-600 text-xl md:text-2xl flex justify-center items-center shadow-md transition active:scale-95; }
         .active-field { @apply border-cyan-400 ring-2 ring-cyan-500/50 bg-gray-900 !important; }
+        .kp-sub-btn { @apply bg-gray-900 hover:bg-cyan-900 active:bg-cyan-600 text-cyan-400 border border-cyan-800 text-xs font-bold py-1.5 rounded text-center; }
+        .cardinal-btn { @apply bg-gray-800 hover:bg-cyan-900 text-cyan-300 border border-gray-600 text-[11px] font-bold py-1 rounded transition active:scale-95; }
     </style>
 </head>
 <body class="bg-cockpit text-gray-200 font-mono min-h-screen p-2 md:p-4 select-none">
@@ -37,9 +40,9 @@
         <div>
             <h1 class="text-xl font-bold text-accent tracking-wider flex items-center gap-2">
                 <span class="inline-block w-3 h-3 bg-accent rounded-full animate-ping"></span>
-                TACTICAL KNEEPAD <span class="text-xs bg-cyan-900/80 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500">v2.0 SMART</span>
+                TACTICAL KNEEPAD <span class="text-xs bg-cyan-900/80 text-cyan-300 px-2 py-0.5 rounded border border-cyan-500">v2.6 PRO</span>
             </h1>
-            <p class="text-xs text-gray-400">US ARMY / USMC ROTARY WING OPS</p>
+            <p class="text-xs text-gray-400">US ARMY / USMC ROTARY WING COCKPIT SYSTEM</p>
         </div>
         <div class="flex gap-2">
             <button onclick="toggleVoice()" id="btn-voice" class="bg-purple-900/60 hover:bg-purple-700 text-purple-200 px-3 py-1.5 rounded text-xs border border-purple-500 font-bold active:scale-95 transition flex items-center gap-1">
@@ -51,32 +54,25 @@
         </div>
     </header>
 
-    <!-- Voice Input Status Banner (Hidden by default) -->
+    <!-- Voice Input Status Banner -->
     <div id="voice-status" class="hidden mb-3 bg-purple-950/80 border border-purple-500 p-2 rounded text-center text-xs text-purple-300 animate-pulse">
-        🎙️ Listening for radio commands... (e.g. "SABER 6 THIS IS VORTEX 1 1 2 UH 60M GRID 0 1 2 3 4 5")
+        🎙️ Listening... Speak radio commands (e.g. "SABER 6 THIS IS VORTEX 1 1 2 UH 60M GRID 0 1 2 3 4 5")
     </div>
 
     <!-- Navigation Tabs -->
-    <nav class="grid grid-cols-4 gap-2 mb-3">
-        <button onclick="switchTab('checkin')" id="tab-checkin" class="tab-btn bg-accent text-black font-bold py-2 rounded text-center text-xs md:text-sm shadow">
-            CHECK-IN
-        </button>
-        <button onclick="switchTab('cas')" id="tab-cas" class="tab-btn bg-panel text-gray-300 font-bold py-2 rounded text-center text-xs md:text-sm border border-gray-700">
-            5-LINE CAS
-        </button>
-        <button onclick="switchTab('medevac')" id="tab-medevac" class="tab-btn bg-panel text-gray-300 font-bold py-2 rounded text-center text-xs md:text-sm border border-gray-700">
-            MEDEVAC
-        </button>
-        <button onclick="switchTab('ref')" id="tab-ref" class="tab-btn bg-panel text-gray-300 font-bold py-2 rounded text-center text-xs md:text-sm border border-gray-700">
-            QUICK REFS
-        </button>
+    <nav class="grid grid-cols-5 gap-1.5 mb-3">
+        <button onclick="switchTab('checkin')" id="tab-checkin" class="tab-btn bg-accent text-black font-bold py-2 rounded text-center text-xs md:text-sm shadow">CHECK-IN</button>
+        <button onclick="switchTab('cas')" id="tab-cas" class="tab-btn bg-panel text-gray-300 font-bold py-2 rounded text-center text-xs md:text-sm border border-gray-700">5-LINE CAS</button>
+        <button onclick="switchTab('medevac')" id="tab-medevac" class="tab-btn bg-panel text-gray-300 font-bold py-2 rounded text-center text-xs md:text-sm border border-gray-700">MEDEVAC</button>
+        <button onclick="switchTab('calc')" id="tab-calc" class="tab-btn bg-panel text-gray-300 font-bold py-2 rounded text-center text-xs md:text-sm border border-gray-700">NAV/CALC</button>
+        <button onclick="switchTab('ref')" id="tab-ref" class="tab-btn bg-panel text-gray-300 font-bold py-2 rounded text-center text-xs md:text-sm border border-gray-700">REFS</button>
     </nav>
 
-    <!-- Main Layout: Grid 2 Columns for iPad -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+    <!-- Main Layout: Grid Layout for iPad -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
         
-        <!-- Left Side: Interactive Forms (2 Columns on Large Screens) -->
-        <div class="lg:col-span-2 space-y-3">
+        <!-- Left Side: Interactive Forms (7 Cols) -->
+        <div class="lg:col-span-7 space-y-3">
             
             <!-- TAB 0: CHECK-IN -->
             <section id="sec-checkin" class="bg-panel p-4 rounded-lg border border-gray-700">
@@ -105,7 +101,7 @@
                     </div>
 
                     <div class="md:col-span-2">
-                        <label class="block text-xs text-cyan-400 mb-1">P: Position & Altitude (Use Tactical Numpad)</label>
+                        <label class="block text-xs text-cyan-400 mb-1">P: Position & Altitude (Use Big Numpad)</label>
                         <input type="text" id="chk-pos" onfocus="setActiveInput(this)" placeholder="e.g. GRID 012-345, 1500 FT" class="w-full bg-gray-900 border border-cyan-800 p-2 rounded text-white focus:border-cyan-400 outline-none mb-1.5">
                     </div>
 
@@ -154,13 +150,42 @@
                         <label class="block text-xs font-bold text-yellow-400 mb-1">Line 3: Target Location (Mandatory Readback)</label>
                         <input type="text" id="cas-l3" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-yellow-600/50 p-2 rounded text-white outline-none">
                     </div>
-                    <div>
+                    <div class="md:col-span-2">
                         <label class="block text-xs text-gray-400">Line 4: Target Description</label>
                         <input type="text" id="cas-l4" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-gray-700 p-2 rounded text-white outline-none">
                     </div>
-                    <div>
+
+                    <!-- INBOUND & OUTBOUND AXIS SECTION -->
+                    <div class="md:col-span-2 p-2.5 bg-gray-900/90 border border-cyan-800/80 rounded space-y-2">
+                        <span class="text-xs font-bold text-cyan-400 tracking-wider">🛩️ INBOUND & OUTBOUND AXIS</span>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-gray-400 mb-1">INBOUND HEADING (ATTACK AXIS)</label>
+                                <input type="text" id="cas-inbound" onfocus="setActiveInput(this)" placeholder="e.g. 040° / NORTH-EAST" class="w-full bg-black border border-cyan-700 p-1.5 rounded text-white outline-none text-xs mb-1">
+                                <div class="grid grid-cols-4 gap-1">
+                                    <button onclick="setFieldValue('cas-inbound', 'INBOUND 360° (NORTH)')" class="cardinal-btn">N</button>
+                                    <button onclick="setFieldValue('cas-inbound', 'INBOUND 045° (NE)')" class="cardinal-btn">NE</button>
+                                    <button onclick="setFieldValue('cas-inbound', 'INBOUND 090° (EAST)')" class="cardinal-btn">E</button>
+                                    <button onclick="setFieldValue('cas-inbound', 'INBOUND 135° (SE)')" class="cardinal-btn">SE</button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-gray-400 mb-1">OUTBOUND / EGRESS HEADING</label>
+                                <input type="text" id="cas-outbound" onfocus="setActiveInput(this)" placeholder="e.g. 220° / SOUTH-WEST" class="w-full bg-black border border-cyan-700 p-1.5 rounded text-white outline-none text-xs mb-1">
+                                <div class="grid grid-cols-4 gap-1">
+                                    <button onclick="setFieldValue('cas-outbound', 'EGRESS 180° (SOUTH)')" class="cardinal-btn">S</button>
+                                    <button onclick="setFieldValue('cas-outbound', 'EGRESS 225° (SW)')" class="cardinal-btn">SW</button>
+                                    <button onclick="setFieldValue('cas-outbound', 'EGRESS 270° (WEST)')" class="cardinal-btn">W</button>
+                                    <button onclick="setFieldValue('cas-outbound', 'EGRESS 315° (NW)')" class="cardinal-btn">NW</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2">
                         <label class="block text-xs font-bold text-yellow-400">Line 5: Remarks / Restrictions</label>
-                        <input type="text" id="cas-l5" onfocus="setActiveInput(this)" class="w-full bg-gray-900 border border-yellow-600/50 p-2 rounded text-white outline-none">
+                        <input type="text" id="cas-l5" onfocus="setActiveInput(this)" placeholder="e.g. DANGER CLOSE, FINAL ATTACK HEADING" class="w-full bg-gray-900 border border-yellow-600/50 p-2 rounded text-white outline-none">
                     </div>
                 </div>
                 <button onclick="genCASReadback()" class="w-full mt-4 bg-accent hover:bg-green-600 text-black font-bold py-2.5 rounded shadow transition active:scale-98">
@@ -194,48 +219,92 @@
                 </button>
             </section>
 
-            <!-- TAB 3: REFS -->
+            <!-- TAB 3: NAV & CALCULATOR TOOLSET -->
+            <section id="sec-calc" class="bg-panel p-4 rounded-lg border border-gray-700 hidden">
+                <h2 class="text-md font-bold text-cyan-400 mb-3 border-b border-gray-700 pb-1">FLIGHT CALCULATOR & TACTICAL TOOLS</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <!-- ETA / Time-En-Route Calc -->
+                    <div class="p-3 bg-gray-900/80 rounded border border-gray-700">
+                        <h3 class="text-xs font-bold text-yellow-400 mb-2">ETA / TIME-EN-ROUTE</h3>
+                        <div class="space-y-2">
+                            <div>
+                                <label class="text-[10px] text-gray-400">DISTANCE (KM)</label>
+                                <input type="number" id="nav-dist" placeholder="e.g. 15" class="w-full bg-black border border-gray-700 p-1.5 rounded text-white outline-none">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-400">AIRSPEED (KNOTS / KMH)</label>
+                                <input type="number" id="nav-speed" value="180" class="w-full bg-black border border-gray-700 p-1.5 rounded text-white outline-none">
+                            </div>
+                            <button onclick="calcETA()" class="w-full bg-cyan-900 text-cyan-200 py-1.5 rounded font-bold text-xs border border-cyan-600">CALCULATE ETE</button>
+                            <div id="eta-result" class="text-center font-bold text-accent text-sm pt-1">ETE: -- MIN</div>
+                        </div>
+                    </div>
+
+                    <!-- Radio Freq Quick Matrix -->
+                    <div class="p-3 bg-gray-900/80 rounded border border-gray-700">
+                        <h3 class="text-xs font-bold text-yellow-400 mb-2">QUICK RADIO PRESETS</h3>
+                        <div class="grid grid-cols-2 gap-1.5 text-xs">
+                            <button onclick="appendValue('chk-jtac', 'FM 38.90')" class="p-2 bg-gray-800 text-gray-300 rounded border border-gray-700 hover:border-cyan-500">NET 1: 38.90</button>
+                            <button onclick="appendValue('chk-jtac', 'FM 42.10')" class="p-2 bg-gray-800 text-gray-300 rounded border border-gray-700 hover:border-cyan-500">NET 2: 42.10</button>
+                            <button onclick="appendValue('chk-jtac', 'UHF 243.0')" class="p-2 bg-gray-800 text-gray-300 rounded border border-gray-700 hover:border-cyan-500">GUARD: 243.0</button>
+                            <button onclick="appendValue('chk-jtac', 'VHF 121.5')" class="p-2 bg-gray-800 text-gray-300 rounded border border-gray-700 hover:border-cyan-500">TWR: 121.5</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: REFS -->
             <section id="sec-ref" class="bg-panel p-4 rounded-lg border border-gray-700 hidden text-xs space-y-2">
-                <h2 class="text-md font-bold text-accent border-b border-gray-700 pb-1">LZ STATUS CODES</h2>
+                <h2 class="text-md font-bold text-accent border-b border-gray-700 pb-1">LZ STATUS & BINGO CHECKS</h2>
                 <div class="grid grid-cols-2 gap-2">
-                    <div class="p-2 bg-green-900/40 border border-green-600 rounded"><b>GREEN/COLD:</b> Clear</div>
-                    <div class="p-2 bg-red-900/40 border border-red-600 rounded"><b>RED/HOT:</b> Active Fire</div>
+                    <div class="p-2 bg-green-900/40 border border-green-600 rounded"><b>GREEN/COLD:</b> LZ Clear</div>
+                    <div class="p-2 bg-red-900/40 border border-red-600 rounded"><b>RED/HOT:</b> Active Contact</div>
                 </div>
             </section>
         </div>
 
-        <!-- Right Side: Tactical Numpad & Radio Output Panel (Optimized for iPad) -->
-        <div class="space-y-3">
+        <!-- Right Side: EXTREME BIG NUMPAD & OUTPUT PANEL (5 Cols) -->
+        <div class="lg:col-span-5 space-y-3">
             
-            <!-- TACTICAL NUMPAD PANEL -->
-            <div class="bg-panel p-3 rounded-lg border border-cyan-800/80 shadow-lg">
+            <!-- BIG TACTICAL NUMPAD PANEL -->
+            <div class="bg-panel p-3.5 rounded-lg border-2 border-cyan-800/80 shadow-2xl">
                 <div class="flex justify-between items-center mb-2">
                     <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
-                        <span class="w-2 h-2 bg-cyan-400 rounded-full"></span> TACTICAL NUMPAD
+                        <span class="w-2.5 h-2.5 bg-cyan-400 rounded-full animate-pulse"></span> BIG NUMPAD
                     </span>
-                    <span id="active-field-name" class="text-[10px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-700">TARGET: NONE</span>
+                    <span id="active-field-name" class="text-[11px] bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-700 font-bold">TARGET: NONE</span>
                 </div>
 
-                <!-- Numpad Grid -->
-                <div class="grid grid-cols-3 gap-1.5 mb-2">
-                    <button onclick="pressNum('7')" class="num-btn">7</button>
-                    <button onclick="pressNum('8')" class="num-btn">8</button>
-                    <button onclick="pressNum('9')" class="num-btn">9</button>
-                    <button onclick="pressNum('4')" class="num-btn">4</button>
-                    <button onclick="pressNum('5')" class="num-btn">5</button>
-                    <button onclick="pressNum('6')" class="num-btn">6</button>
-                    <button onclick="pressNum('1')" class="num-btn">1</button>
-                    <button onclick="pressNum('2')" class="num-btn">2</button>
-                    <button onclick="pressNum('3')" class="num-btn">3</button>
-                    <button onclick="pressNum('0')" class="num-btn col-span-2">0</button>
-                    <button onclick="pressBackspace()" class="num-btn bg-red-950/60 hover:bg-red-800 text-red-300 border-red-700">⌫</button>
+                <!-- Big Numpad Grid -->
+                <div class="grid grid-cols-3 gap-2 mb-2">
+                    <button onclick="pressNum('7')" class="big-num-btn">7</button>
+                    <button onclick="pressNum('8')" class="big-num-btn">8</button>
+                    <button onclick="pressNum('9')" class="big-num-btn">9</button>
+                    <button onclick="pressNum('4')" class="big-num-btn">4</button>
+                    <button onclick="pressNum('5')" class="big-num-btn">5</button>
+                    <button onclick="pressNum('6')" class="big-num-btn">6</button>
+                    <button onclick="pressNum('1')" class="big-num-btn">1</button>
+                    <button onclick="pressNum('2')" class="big-num-btn">2</button>
+                    <button onclick="pressNum('3')" class="big-num-btn">3</button>
+                    <button onclick="pressNum('0')" class="big-num-btn col-span-2">0</button>
+                    <button onclick="pressBackspace()" class="big-num-btn bg-red-950/80 hover:bg-red-800 text-red-300 border-red-700">⌫</button>
                 </div>
 
-                <!-- Smart Format Quick Inserters -->
-                <div class="grid grid-cols-3 gap-1 text-xs">
-                    <button onclick="formatGrid(6)" class="bg-cyan-950 hover:bg-cyan-900 text-cyan-300 py-1.5 rounded border border-cyan-700 font-bold">GRID 6-D</button>
-                    <button onclick="formatGrid(8)" class="bg-cyan-950 hover:bg-cyan-900 text-cyan-300 py-1.5 rounded border border-cyan-700 font-bold">GRID 8-D</button>
-                    <button onclick="pressNum(' (KP ') " class="bg-cyan-950 hover:bg-cyan-900 text-cyan-300 py-1.5 rounded border border-cyan-700 font-bold">+ NUMPAD</button>
+                <!-- Sub-Grid Keypad Visual Shift Overlay -->
+                <div class="mt-2 border-t border-gray-800 pt-2">
+                    <label class="block text-[10px] text-gray-400 mb-1 text-center font-bold">KEYPAD SUB-SECTOR (KP 1-9)</label>
+                    <div class="grid grid-cols-3 gap-1">
+                        <button onclick="pressNum(' (KP 7)')" class="kp-sub-btn">KP 7 (NW)</button>
+                        <button onclick="pressNum(' (KP 8)')" class="kp-sub-btn">KP 8 (N)</button>
+                        <button onclick="pressNum(' (KP 9)')" class="kp-sub-btn">KP 9 (NE)</button>
+                        <button onclick="pressNum(' (KP 4)')" class="kp-sub-btn">KP 4 (W)</button>
+                        <button onclick="pressNum(' (KP 5)')" class="kp-sub-btn">KP 5 (CTR)</button>
+                        <button onclick="pressNum(' (KP 6)')" class="kp-sub-btn">KP 6 (E)</button>
+                        <button onclick="pressNum(' (KP 1)')" class="kp-sub-btn">KP 1 (SW)</button>
+                        <button onclick="pressNum(' (KP 2)')" class="kp-sub-btn">KP 2 (S)</button>
+                        <button onclick="pressNum(' (KP 3)')" class="kp-sub-btn">KP 3 (SE)</button>
+                    </div>
                 </div>
             </div>
 
@@ -278,7 +347,7 @@
             document.getElementById('active-field-name').innerText = 'TARGET: ' + (el.previousElementSibling?.innerText || el.placeholder || 'FIELD').toUpperCase();
         }
 
-        // Numpad Controls
+        // Big Numpad Controls
         function pressNum(num) {
             if (!currentActiveInput) setActiveInput(document.getElementById('chk-pos'));
             currentActiveInput.value += num;
@@ -303,16 +372,6 @@
             }
         }
 
-        function formatGrid(digits) {
-            if (!currentActiveInput) setActiveInput(document.getElementById('chk-pos'));
-            let val = currentActiveInput.value.replace(/[^0-9]/g, '');
-            if (digits === 6 && val.length >= 6) {
-                currentActiveInput.value = `GRID ${val.slice(0,3)}-${val.slice(3,6)}`;
-            } else if (digits === 8 && val.length >= 8) {
-                currentActiveInput.value = `GRID ${val.slice(0,4)}-${val.slice(4,8)}`;
-            }
-        }
-
         function setFieldValue(inputId, val) {
             const el = document.getElementById(inputId);
             el.value = val;
@@ -323,6 +382,17 @@
             const el = document.getElementById(inputId);
             if (!el.value.includes(val)) {
                 el.value = el.value ? el.value + ', ' + val : val;
+            }
+        }
+
+        // ETE Calculator
+        function calcETA() {
+            const dist = parseFloat(document.getElementById('nav-dist').value);
+            const speed = parseFloat(document.getElementById('nav-speed').value);
+            if (dist && speed) {
+                const timeInHours = dist / speed;
+                const timeInMinutes = Math.round(timeInHours * 60);
+                document.getElementById('eta-result').innerText = `ETE: ~${timeInMinutes} MIN`;
             }
         }
 
@@ -375,9 +445,6 @@
 
         // Smart Voice Command Parser
         function parseVoiceCommand(text) {
-            console.log("Voice Input:", text);
-            
-            // Extract Grid Numbers (e.g. "GRID 0 1 2 3 4 5")
             const gridMatch = text.match(/GRID\s*([\d\s]{6,8})/i) || text.match(/([\d\s]{6,8})/);
             if (gridMatch) {
                 const nums = gridMatch[0].replace(/\s/g, '');
@@ -385,8 +452,6 @@
                     document.getElementById('chk-pos').value = `GRID ${nums.slice(0,3)}-${nums.slice(3,6)}`;
                 }
             }
-
-            // Extract Aircraft
             if (text.includes("UH 60") || text.includes("BLACKHAWK")) document.getElementById('chk-aircraft').value = "2x UH-60M";
             if (text.includes("APACHE") || text.includes("AH 64")) document.getElementById('chk-aircraft').value = "1x AH-64D";
 
@@ -395,7 +460,7 @@
 
         // Tab Switcher
         function switchTab(tab) {
-            ['checkin', 'cas', 'medevac', 'ref'].forEach(t => {
+            ['checkin', 'cas', 'medevac', 'calc', 'ref'].forEach(t => {
                 document.getElementById(`sec-${t}`).classList.add('hidden');
                 document.getElementById(`tab-${t}`).className = 'tab-btn bg-panel text-gray-300 font-bold py-2 rounded text-center text-xs md:text-sm border border-gray-700';
             });
@@ -403,7 +468,7 @@
             document.getElementById(`tab-${tab}`).className = 'tab-btn bg-accent text-black font-bold py-2 rounded text-center text-xs md:text-sm shadow';
         }
 
-        // Generators
+        // Script Generators
         function genCheckinScript() {
             const jtac = document.getElementById('chk-jtac').value || "JTAC";
             const pilot = document.getElementById('chk-pilot').value || "VORTEX 1-1";
@@ -424,12 +489,22 @@
         function genCASReadback() {
             const l1 = document.getElementById('cas-l1').value || "ROGER";
             const l3 = document.getElementById('cas-l3').value || "[GRID OMITTED]";
-            const l5 = document.getElementById('cas-l5').value || "NO RESTRICTIONS";
+            const inbound = document.getElementById('cas-inbound').value;
+            const outbound = document.getElementById('cas-outbound').value;
+            let l5 = document.getElementById('cas-l5').value || "NO RESTRICTIONS";
+
+            let axisInfo = [];
+            if (inbound) axisInfo.push(inbound);
+            if (outbound) axisInfo.push(outbound);
+            
+            if (axisInfo.length > 0) {
+                l5 += `, AXIS: ${axisInfo.join(' / ')}`;
+            }
 
             const script = `${l1}, READBACK:\n` +
                            `• LINE 3 (TARGET): ${l3}\n` +
-                           `• LINE 5 (REMARKS): ${l5}\n\n` +
-                           `"COPY TARGET ${l3}, RESTRICTIONS: ${l5}. INBOUND."`;
+                           `• LINE 5 (REMARKS/AXIS): ${l5}\n\n` +
+                           `"COPY TARGET ${l3}. ${axisInfo.length > 0 ? axisInfo.join(', ') + '. ' : ''}INBOUND."`;
             document.getElementById('readback-output').value = script;
         }
 
