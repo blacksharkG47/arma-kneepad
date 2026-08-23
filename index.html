@@ -69,10 +69,32 @@
 
         <!-- 🟢 MODE: 5-LINE ROTARY CAS -->
         <div id="mode-5line" class="space-y-3 hidden">
+            <!-- Line 1: Quick Selection Controls -->
             <div class="bg-gray-800 p-2 rounded-lg border border-gray-700">
                 <label class="text-xs text-green-400 font-bold block mb-1">L1: GAME PLAN & ORDNANCE</label>
-                <input type="text" id="5l-l1" value="Type 2, BOT, 30mm & Hydras" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-gray-600 text-white">
+                <input type="text" id="5l-l1" value="Type 2, BOT" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-gray-600 text-white mb-2">
+                
+                <!-- Type & Method Selectors -->
+                <div class="grid grid-cols-2 gap-1 mb-1">
+                    <div class="flex gap-1">
+                        <button onclick="set5LineType('Type 1')" class="bg-gray-700 hover:bg-green-700 text-[10px] text-white px-2 py-1 rounded font-bold flex-1">Type 1</button>
+                        <button onclick="set5LineType('Type 2')" class="bg-gray-700 hover:bg-green-700 text-[10px] text-white px-2 py-1 rounded font-bold flex-1">Type 2</button>
+                        <button onclick="set5LineType('Type 3')" class="bg-gray-700 hover:bg-green-700 text-[10px] text-white px-2 py-1 rounded font-bold flex-1">Type 3</button>
+                    </div>
+                    <div class="flex gap-1">
+                        <button onclick="appendQuickText('5l-l1', 'BOT')" class="bg-gray-700 hover:bg-yellow-600 text-[10px] text-white px-2 py-1 rounded font-bold flex-1">BOT</button>
+                        <button onclick="appendQuickText('5l-l1', 'BOC')" class="bg-gray-700 hover:bg-yellow-600 text-[10px] text-white px-2 py-1 rounded font-bold flex-1">BOC</button>
+                    </div>
+                </div>
+                <!-- Ordnance Selectors -->
+                <div class="grid grid-cols-4 gap-1">
+                    <button onclick="appendQuickText('5l-l1', '30mm Cannon')" class="bg-gray-700 hover:bg-green-600 text-[9px] text-gray-200 py-1 rounded">30mm</button>
+                    <button onclick="appendQuickText('5l-l1', 'Hydra 70')" class="bg-gray-700 hover:bg-green-600 text-[9px] text-gray-200 py-1 rounded">Hydras</button>
+                    <button onclick="appendQuickText('5l-l1', 'AGM-114')" class="bg-gray-700 hover:bg-green-600 text-[9px] text-gray-200 py-1 rounded">Hellfire</button>
+                    <button onclick="appendQuickText('5l-l1', 'M134 Minigun')" class="bg-gray-700 hover:bg-green-600 text-[9px] text-gray-200 py-1 rounded">Minigun</button>
+                </div>
             </div>
+
             <div class="bg-gray-800 p-2 rounded-lg border border-gray-700">
                 <label class="text-xs text-green-400 font-bold block mb-1">L2: FRIENDLY POS & MARK</label>
                 <input type="text" id="5l-l2" placeholder="Grid & Smoke Color" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-gray-600 text-white">
@@ -87,18 +109,16 @@
                 <input type="text" id="5l-l3" placeholder="Dir/Dist e.g. 300m North" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-gray-600 text-white">
             </div>
             
-            <!-- Target Description with Selector Button -->
             <div class="bg-gray-800 p-2 rounded-lg border border-gray-700">
                 <div class="flex justify-between items-center mb-1">
                     <label class="text-xs text-green-400 font-bold">L4: TARGET DESC & MARK</label>
-                    <button onclick="openTargetModal('5l-l4')" class="bg-green-700 hover:bg-green-600 text-white text-[10px] px-2 py-1 rounded font-bold">🎯 SELECT ARMA TARGET</button>
+                    <button onclick="openTargetModal('5l-l4')" class="bg-green-700 hover:bg-green-600 text-white text-[10px] px-2 py-1 rounded font-bold">🎯 SELECT TARGET</button>
                 </div>
                 <input type="text" id="5l-l4" placeholder="Target & Laser/IR" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-gray-600 text-white">
             </div>
 
-            <!-- Mandatory Readback Section -->
             <div class="bg-gray-800 p-2 rounded-lg border-2 border-red-500">
-                <label class="text-xs text-red-400 font-bold block mb-1">🚨 L5: REMARKS & RESTRICTIONS (MANDATORY READBACK)</label>
+                <label class="text-xs text-red-400 font-bold block mb-1">🚨 L5: REMARKS & RESTRICTIONS (READBACK)</label>
                 <input type="text" id="5l-l5" placeholder="FAH 360 / Danger Close / MANPADS" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 text-base rounded border border-red-600 text-red-200">
                 <button onclick="readback5Line()" class="w-full mt-2 bg-red-700 text-white font-bold py-2 rounded text-xs">📢 READBACK RESTRICTIONS</button>
             </div>
@@ -112,29 +132,33 @@
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L3: Distance</label><input type="text" id="9l-l3" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
-                <!-- Readback Required Line 4 -->
                 <div class="bg-gray-800 p-2 rounded border border-yellow-500"><label class="text-xs text-yellow-400 font-bold">⚠️ L4: Elev (READBACK)</label><input type="text" id="9l-l4" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-yellow-200"></div>
             </div>
 
-            <!-- Target Selection -->
             <div class="bg-gray-800 p-2 rounded">
                 <div class="flex justify-between items-center mb-1">
                     <label class="text-xs text-gray-400">L5: Target Description</label>
-                    <button onclick="openTargetModal('9l-l5')" class="bg-green-700 text-white text-[10px] px-2 py-0.5 rounded font-bold">🎯 SELECT ARMA TARGET</button>
+                    <button onclick="openTargetModal('9l-l5')" class="bg-green-700 text-white text-[10px] px-2 py-0.5 rounded font-bold">🎯 SELECT TARGET</button>
                 </div>
                 <input type="text" id="9l-l5" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white">
             </div>
 
-            <!-- Readback Required Line 6 -->
             <div class="bg-gray-800 p-2 rounded border border-yellow-500"><label class="text-xs text-yellow-400 font-bold">⚠️ L6: Grid Location (READBACK)</label><input type="text" id="9l-l6" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-yellow-200"></div>
             
             <div class="grid grid-cols-2 gap-2">
                 <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L7: Mark Type</label><input type="text" id="9l-l7" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
                 <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L8: Friendlies</label><input type="text" id="9l-l8" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
             </div>
-            <div class="bg-gray-800 p-2 rounded"><label class="text-xs text-gray-400">L9: Egress</label><input type="text" id="9l-l9" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white"></div>
+
+            <!-- Line 9: Egress with Pop-up Button -->
+            <div class="bg-gray-800 p-2 rounded">
+                <div class="flex justify-between items-center mb-1">
+                    <label class="text-xs text-gray-400">L9: Egress Direction</label>
+                    <button onclick="openEgressModal()" class="bg-blue-700 hover:bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded font-bold">🧭 SELECT EGRESS</button>
+                </div>
+                <input type="text" id="9l-l9" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-white">
+            </div>
             
-            <!-- Readback Required Restrictions -->
             <div class="bg-gray-800 p-2 rounded border-2 border-red-500">
                 <label class="text-xs text-red-400 font-bold">🚨 RESTRICTIONS (MANDATORY READBACK)</label>
                 <input type="text" id="9l-rest" onclick="setActiveInput(this)" readonly class="w-full bg-gray-900 p-2 rounded text-red-200">
@@ -155,10 +179,10 @@
         <div id="mode-facts" class="space-y-3 hidden">
             <div class="bg-gray-800 p-2 rounded border border-yellow-500">
                 <label class="text-xs text-yellow-400 font-bold block mb-1">🔍 MULTI-SERVICE BREVITY CODE SEARCH</label>
-                <input type="text" id="brevity-search" oninput="searchBrevity()" placeholder="Search terms e.g. Angels, Rifle, Winchester..." class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white">
+                <input type="text" id="brevity-search" onkeyup="searchBrevity()" placeholder="Search terms e.g. Angels, Rifle, Winchester..." class="w-full bg-gray-900 p-2 text-sm rounded border border-gray-600 text-white">
             </div>
 
-            <div id="brevity-list" class="space-y-2 max-h-[400px] overflow-y-auto">
+            <div id="brevity-list" class="space-y-2 max-h-[420px] overflow-y-auto">
                 <!-- JS Populates Code Items Here -->
             </div>
         </div>
@@ -196,7 +220,7 @@
         <button onclick="clearCurrentForm()" class="w-full mt-4 p-3 bg-gray-700 text-gray-300 rounded font-bold text-xs">CLEAR ALL FIELDS</button>
     </main>
 
-    <!-- 🎯 TARGET SELECTOR MODAL (ARMA REFORGER UNITS) -->
+    <!-- 🎯 TARGET SELECTOR MODAL -->
     <div id="target-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-gray-800 border border-green-500 rounded-lg w-full max-w-md p-4 max-h-[85vh] flex flex-col">
             <div class="flex justify-between items-center pb-2 border-b border-gray-700">
@@ -205,7 +229,6 @@
             </div>
             
             <div class="overflow-y-auto my-3 space-y-3 flex-1 text-xs">
-                <!-- Armored Vehicles -->
                 <div>
                     <h4 class="text-yellow-400 font-bold mb-1">🛡️ ARMOR & VEHICLES</h4>
                     <div class="grid grid-cols-2 gap-1">
@@ -218,7 +241,6 @@
                     </div>
                 </div>
 
-                <!-- Infantry Teams -->
                 <div>
                     <h4 class="text-yellow-400 font-bold mb-1">🪖 INFANTRY & WEAPONS</h4>
                     <div class="grid grid-cols-2 gap-1">
@@ -231,7 +253,6 @@
                     </div>
                 </div>
 
-                <!-- Structures & Aviation -->
                 <div>
                     <h4 class="text-yellow-400 font-bold mb-1">🏢 STRUCTURES & AIR</h4>
                     <div class="grid grid-cols-2 gap-1">
@@ -247,30 +268,60 @@
         </div>
     </div>
 
+    <!-- 🧭 EGRESS DIRECTION SELECTOR MODAL -->
+    <div id="egress-modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-gray-800 border border-blue-500 rounded-lg w-full max-w-sm p-4 flex flex-col">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-700">
+                <h3 class="text-sm font-bold text-blue-400">🧭 SELECT EGRESS DIRECTION</h3>
+                <button onclick="closeEgressModal()" class="text-gray-400 text-xl font-bold">&times;</button>
+            </div>
+            
+            <div class="my-4 grid grid-cols-3 gap-2 text-center text-sm font-bold">
+                <button onclick="selectEgress('NW')" class="bg-gray-700 hover:bg-blue-600 p-3 rounded">NW</button>
+                <button onclick="selectEgress('NORTH')" class="bg-blue-800 hover:bg-blue-600 p-3 rounded">NORTH</button>
+                <button onclick="selectEgress('NE')" class="bg-gray-700 hover:bg-blue-600 p-3 rounded">NE</button>
+
+                <button onclick="selectEgress('WEST')" class="bg-blue-800 hover:bg-blue-600 p-3 rounded">WEST</button>
+                <button onclick="selectEgress('OVERHEAD')" class="bg-yellow-700 hover:bg-yellow-600 text-xs p-2 rounded flex items-center justify-center">OVERHEAD</button>
+                <button onclick="selectEgress('EAST')" class="bg-blue-800 hover:bg-blue-600 p-3 rounded">EAST</button>
+
+                <button onclick="selectEgress('SW')" class="bg-gray-700 hover:bg-blue-600 p-3 rounded">SW</button>
+                <button onclick="selectEgress('SOUTH')" class="bg-blue-800 hover:bg-blue-600 p-3 rounded">SOUTH</button>
+                <button onclick="selectEgress('SE')" class="bg-gray-700 hover:bg-blue-600 p-3 rounded">SE</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-1 mb-2">
+                <button onclick="selectEgress('Rejoin Holding Area')" class="bg-gray-700 hover:bg-blue-600 text-[10px] p-2 rounded">Direct to HA</button>
+                <button onclick="selectEgress('High Altitude Climb')" class="bg-gray-700 hover:bg-blue-600 text-[10px] p-2 rounded">High Altitude</button>
+            </div>
+
+            <button onclick="closeEgressModal()" class="w-full bg-gray-700 p-2 rounded text-gray-300 font-bold">CANCEL</button>
+        </div>
+    </div>
+
     <!-- JS Logic -->
     <script>
         let currentInput = null;
         let targetFieldId = null;
 
+        // Brevity codes database (Excluded IN HOT and OFF COLD)
         const brevityCodes = [
             { code: "ANGELS", def: "ความสูงของอากาศยาน หน่วยเป็นพันฟุต (เช่น Angels 2 = 2,000 ft)" },
             { code: "CHERUBS", def: "ความสูงของอากาศยาน หน่วยเป็นร้อยฟุต (เช่น Cherubs 5 = 500 ft)" },
             { code: "CLEARED HOT", def: "อนุญาตให้อาวุธออกจากเครื่อง/โจมตีเป้าหมายได้" },
-            { code: "CLEARED TO ENGAGE", def: "อนุญาตให้ออกอาวุธสำหรับ Type 3 CAS หรือสถานการณ์สู้รบตามเงื่อนไข" },
-            { code: "IN HOT", def: "รายงานเมื่อเครื่องกำลังพุ่งเข้าสู่วงรอบการยิง/ใช้อาวุธ" },
-            { code: "OFF COLD", def: "รายงานเมื่อทำการยิงเสร็จแล้ว และผละออกจากวงรอบเป้าหมาย" },
+            { code: "CLEARED TO ENGAGE", def: "อนุญาตให้ออกอาวุธสำหรับ Type 3 CAS หรือการโจมตีตามเงื่อนไข" },
             { code: "RIFLE", def: "ยิงขีปนาวุธนำวิถีอากาศสู่พื้น (เช่น AGM-114 Hellfire)" },
             { code: "PICKLE", def: "ปล่อยระเบิดลงมาจากเครื่อง" },
             { code: "GUNS GUNS GUNS", def: "ใช้อาวุธปืนใหญ่/ปืนกลอากาศยิงเป้าหมาย" },
             { code: "WINCHESTER", def: "อาวุธบนเครื่องหมดแล้ว (No Ordnance Remaining)" },
             { code: "BINGO", def: "น้ำมันเชื้อเพลิงอยู่ในระดับต่ำสุด ต้องบินกลับฐานทันที" },
             { code: "VISUAL", def: "มองเห็นอากาศยานฝ่ายเดียวกันด้วยสายตา" },
-            { code: "BLIND", def: "มองไม่เห็นอากาศยานฝ่ายเดียวกัน (ตรงข้ามกับ Visual)" },
+            { code: "BLIND", def: "มองไม่เห็นอากาศยานฝ่ายเดียวกัน" },
             { code: "TALLY", def: "มองเห็นเป้าหมายหรือภัยคุกคามด้วยสายตา" },
             { code: "NO JOY", def: "มองไม่เห็นเป้าหมาย/ภัยคุกคามตามที่ระบุ" },
             { code: "SPARKLE", def: "เป้าหมายถูกชี้ด้วยแสงอินฟราเรด (IR Pointer)" },
             { code: "DEADEYE", def: "อุปกรณ์ Laser Designator ขัดข้อง ยิงแสงเลเซอร์ไม่ได้" },
-            { code: "DANGER CLOSE", def: "ฝ่ายเดียวกันอยู่ใกล้ระยะอันตรายของรัศมีระเบิด ต้องระวังอย่างยิ่ง" }
+            { code: "DANGER CLOSE", def: "ฝ่ายเดียวกันอยู่ใกล้รัศมีระเบิด ต้องระวังอย่างยิ่ง" }
         ];
 
         function switchMode(mode) {
@@ -294,6 +345,13 @@
             currentInput = null;
         }
 
+        /* 5-Line Helper Functions */
+        function set5LineType(typeStr) {
+            const input = document.getElementById('5l-l1');
+            input.value = typeStr;
+        }
+
+        /* Modal Handlers */
         function openTargetModal(fieldId) {
             targetFieldId = fieldId;
             document.getElementById('target-modal').classList.remove('hidden');
@@ -310,6 +368,20 @@
             closeTargetModal();
         }
 
+        function openEgressModal() {
+            document.getElementById('egress-modal').classList.remove('hidden');
+        }
+
+        function closeEgressModal() {
+            document.getElementById('egress-modal').classList.add('hidden');
+        }
+
+        function selectEgress(dir) {
+            document.getElementById('9l-l9').value = dir;
+            closeEgressModal();
+        }
+
+        /* Readback Script */
         function readback9Line() {
             const elev = document.getElementById('9l-l4').value || "[EMPTY]";
             const grid = document.getElementById('9l-l6').value || "[EMPTY]";
@@ -322,8 +394,13 @@
             alert(`📢 5-LINE MANDATORY READBACK:\n\n• Line 5 (Restrictions): ${rest}`);
         }
 
+        /* Brevity Dictionary Render & Search */
         function renderBrevity(data) {
             const container = document.getElementById('brevity-list');
+            if (data.length === 0) {
+                container.innerHTML = `<div class="text-gray-400 text-xs p-3 text-center">ไม่พบข้อมูลคำศัพท์</div>`;
+                return;
+            }
             container.innerHTML = data.map(item => `
                 <div class="bg-gray-800 p-2 rounded border border-gray-700">
                     <span class="text-green-400 font-bold text-sm">${item.code}</span>
@@ -333,11 +410,12 @@
         }
 
         function searchBrevity() {
-            const q = document.getElementById('brevity-search').value.toLowerCase();
+            const q = document.getElementById('brevity-search').value.toLowerCase().trim();
             const filtered = brevityCodes.filter(c => c.code.toLowerCase().includes(q) || c.def.toLowerCase().includes(q));
             renderBrevity(filtered);
         }
 
+        /* General UI Helpers */
         function setActiveInput(elem) {
             currentInput = elem;
             document.querySelectorAll('input').forEach(i => i.classList.remove('border-green-400'));
@@ -355,7 +433,7 @@
 
         function appendQuickText(inputId, text) {
             const input = document.getElementById(inputId);
-            if (input) input.value = input.value ? input.value + " / " + text : text;
+            if (input) input.value = input.value ? input.value + ", " + text : text;
         }
 
         function applyPreset(type) {
